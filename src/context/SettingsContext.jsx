@@ -1,55 +1,61 @@
 import { createContext, useContext, useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase'
+import { useAuth } from './AuthContext'
 
 const SettingsContext = createContext({})
 
+const defaultSettings = {
+  theme: 'light',
+  largeText: false,
+  showLevel: true,
+  showBadges: true,
+  notifyLeaderboard: true,
+  followNeighborhood: false,
+  weeklyEmail: false,
+}
+
+function applySettings(settings) {
+  if (settings.theme === 'dark') {
+    document.documentElement.classList.add('dark')
+  } else {
+    document.documentElement.classList.remove('dark')
+  }
+  document.documentElement.style.fontSize = settings.largeText ? '18px' : ''
+}
+
 export function SettingsProvider({ children }) {
-  const [settings, setSettings] = useState({
-    tema: 'luminos',
-    textMare: false,
-  })
+  const [settings, setSettings] = useState(defaultSettings)
+  const { user } = useAuth()
 
   useEffect(() => {
-    // Load settings when user logs in/out
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
-      if (session?.user) {
-        const { data } = await supabase
-          .from('profiles')
-          .select('settings')
-          .eq('id', session.user.id)
-          .single()
-        if (data?.settings) setSettings(prev => ({ ...prev, ...data.settings }))
-      } else {
-        setSettings({ tema: 'luminos', textMare: false })
-      }
-    })
-    return () => subscription.unsubscribe()
-  }, [])
-
-  // Apply settings to DOM whenever they change
-  useEffect(() => {
-    const root = document.documentElement
-
-    // Dark mode
-    if (settings.tema === 'intunecat') {
-      root.classList.add('dark')
-    } else if (settings.tema === 'sistem') {
-      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
-      root.classList.toggle('dark', prefersDark)
-    } else {
-      root.classList.remove('dark')
+    if (!user) {
+      setSettings(defaultSettings)
+      applySettings(defaultSettings)
+      return
     }
-
-    // Text size
-    if (settings.textMare) {
-      root.style.fontSize = '18px'
-    } else {
-      root.style.fontSize = ''
-    }
-  }, [settings.tema, settings.textMare])
+    // Fetch settings from DB when user is available
+    supabase
+      .from('profiles')
+      .select('settings')
+      .eq('id', user.id)
+      .single()
+      .then(({ data }) => {
+        if (data?.settings) {
+          const merged = { ...defaultSettings, ...data.settings }
+          setSettings(merged)
+          applySettings(merged)
+        }
+      })
+  }, [user])
 
   return (
-    <SettingsContext.Provider value={{ settings, setSettings }}>
+    <SettingsContext.Provider value={{ settings, setSettings: (fn) => {
+      setSettings(prev => {
+        const next = typeof fn === 'function' ? fn(prev) : fn
+        applySettings(next)
+        return next
+      })
+    }}}>
       {children}
     </SettingsContext.Provider>
   )

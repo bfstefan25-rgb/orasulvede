@@ -83,7 +83,7 @@ function timeAgo(date) {
 
 export default function Profile() {
   const navigate = useNavigate()
-  const { setSettings: applySettings } = useSettings()
+  const { setSettings } = useSettings()
   const [authUser,  setAuthUser]  = useState(null)
   const [profile,   setProfile]   = useState(null)
   const [myReports, setMyReports] = useState([])
@@ -116,7 +116,7 @@ export default function Profile() {
 
   async function saveSettings() {
     setSaving(true)
-    applySettings(prev => ({ ...prev, ...settings }))
+    setSettings(settings)
     const updates = { settings }
     if (settings.displayName) updates.full_name = settings.displayName
     await supabase.from('profiles').update(updates).eq('id', authUser.id)

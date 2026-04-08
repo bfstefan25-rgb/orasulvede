@@ -114,15 +114,16 @@ export default function Profile() {
     setLoading(false)
   }
 
-async function saveSettings() {
-  if (settings.theme === 'dark') {
+aasync function saveSettings() {
+  // Apply dark mode using correct Romanian key names
+  if (settings.tema === 'intunecat') {
     document.documentElement.classList.add('dark')
   } else {
     document.documentElement.classList.remove('dark')
   }
-  document.documentElement.style.fontSize = settings.largeText ? '18px' : ''
+  document.documentElement.style.fontSize = settings.textMare ? '18px' : ''
+
   setSaving(true)
-  setSettings(settings)
   const updates = { settings }
   if (settings.displayName) updates.full_name = settings.displayName
   await supabase.from('profiles').update(updates).eq('id', authUser.id)
@@ -131,17 +132,6 @@ async function saveSettings() {
   setSaving(false)
   await fetchAll()
 }
-    setSaving(true)
-    setSettings(settings)
-    const updates = { settings }
-    if (settings.displayName) updates.full_name = settings.displayName
-    await supabase.from('profiles').update(updates).eq('id', authUser.id)
-    setSaveMsg('Salvat cu succes! ✓')
-    setTimeout(() => setSaveMsg(''), 3000)
-    setSaving(false)
-    await fetchAll()
-  }
-
   async function deleteAccount() {
     await supabase.from('reports').delete().eq('user_id', authUser.id)
     await supabase.from('profiles').delete().eq('id', authUser.id)

@@ -83,7 +83,7 @@ function timeAgo(date) {
 
 export default function Profile() {
   const navigate = useNavigate()
-  const { setSettings } = useSettings()
+  const { setSettings: applyToContext } = useSettings()
   const [authUser,  setAuthUser]  = useState(null)
   const [profile,   setProfile]   = useState(null)
   const [myReports, setMyReports] = useState([])
@@ -115,6 +115,7 @@ export default function Profile() {
   }
 
   async function saveSettings() {
+    applyToContext(settings)
     setSaving(true)
     setSettings(settings)
     const updates = { settings }

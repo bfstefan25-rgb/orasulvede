@@ -12,3 +12,16 @@ body {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
   background-color: #f8fafc;
 }
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Dark mode base */
+html.dark {
+  color-scheme: dark;
+}
+
+html.dark body {
+  background-color: #030712; /* gray-950 */
+  color: #f9fafb;
+}

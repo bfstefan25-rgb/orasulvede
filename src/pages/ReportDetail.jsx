@@ -56,14 +56,11 @@ export default function ReportDetail() {
   const [loading, setLoading] = useState(true)
   const [notFound, setNotFound] = useState(false)
 
-  useEffect(() => {
-    fetchAll()
-  }, [id, user])
+  useEffect(() => { fetchAll() }, [id, user])
 
   async function fetchAll() {
     setLoading(true)
 
-    // Fetch report
     const { data: rep, error } = await supabase
       .from('reports')
       .select('*')
@@ -78,7 +75,6 @@ export default function ReportDetail() {
     setReport(rep)
     setVoteCount(rep.votes_count || 0)
 
-    // Fetch reporter profile
     if (rep.user_id) {
       const { data: profile } = await supabase
         .from('profiles')
@@ -88,7 +84,6 @@ export default function ReportDetail() {
       setReporter(profile)
     }
 
-    // Fetch comments with profile info
     const { data: comms } = await supabase
       .from('comments')
       .select('id, content, created_at, user_id')
@@ -96,7 +91,6 @@ export default function ReportDetail() {
       .order('created_at', { ascending: true })
     setComments(comms || [])
 
-    // Check if current user has voted
     if (user) {
       const { data: vote } = await supabase
         .from('votes')
@@ -148,18 +142,18 @@ export default function ReportDetail() {
 
   if (loading) {
     return (
-      <div className="max-w-2xl mx-auto px-4 py-20 text-center">
-        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600 mx-auto" />
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600" />
       </div>
     )
   }
 
   if (notFound) {
     return (
-      <div className="max-w-2xl mx-auto px-4 py-20 text-center">
-        <AlertCircle size={48} className="text-gray-300 mx-auto mb-4" />
-        <h2 className="text-xl font-bold text-gray-900 mb-2">Raport negăsit</h2>
-        <p className="text-gray-400 mb-6">Acest raport nu există sau a fost șters.</p>
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex flex-col items-center justify-center px-4 text-center">
+        <AlertCircle size={48} className="text-gray-300 dark:text-gray-600 mx-auto mb-4" />
+        <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Raport negăsit</h2>
+        <p className="text-gray-400 dark:text-gray-500 mb-6">Acest raport nu există sau a fost șters.</p>
         <Link to="/acasa" className="text-blue-600 font-medium hover:underline">← Înapoi la Acasă</Link>
       </div>
     )
@@ -170,213 +164,217 @@ export default function ReportDetail() {
   const currentStep = STATUS_STEPS.indexOf(report.status)
 
   return (
-    <div className="max-w-2xl mx-auto px-4 py-6 pb-24">
-      {/* Back button */}
-      <button
-        onClick={() => navigate(-1)}
-        className="flex items-center gap-2 text-gray-500 hover:text-gray-900 mb-6 transition-colors"
-      >
-        <ArrowLeft size={18} />
-        <span className="text-sm font-medium">Înapoi</span>
-      </button>
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 transition-colors">
+      <div className="max-w-2xl mx-auto px-4 py-6 pb-24">
 
-      {/* Hero image */}
-      {report.image_url && (
-        <div className="rounded-2xl overflow-hidden mb-6 shadow-sm">
-          <img
-            src={report.image_url}
-            alt={report.title}
-            className="w-full max-h-80 object-cover"
-          />
-        </div>
-      )}
-
-      {/* Title + badges */}
-      <div className="mb-4">
-        <div className="flex flex-wrap gap-2 mb-3">
-          <span className={`text-xs font-semibold px-3 py-1 rounded-full ${catColor}`}>
-            {report.category}
-          </span>
-          <span className={`text-xs font-semibold px-3 py-1 rounded-full ${statusInfo.bg} ${statusInfo.text}`}>
-            {statusInfo.label}
-          </span>
-        </div>
-        <h1 className="text-2xl font-bold text-gray-900 mb-2">{report.title}</h1>
-        <div className="flex flex-wrap items-center gap-4 text-sm text-gray-400">
-          {report.address && (
-            <span className="flex items-center gap-1">
-              <MapPin size={14} />
-              {report.address}
-            </span>
-          )}
-          <span className="flex items-center gap-1">
-            <Clock size={14} />
-            {timeAgo(report.created_at)}
-          </span>
-        </div>
-      </div>
-
-      {/* Description */}
-      {report.description && (
-        <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 mb-4">
-          <h3 className="font-semibold text-gray-900 mb-2 text-sm">Descriere</h3>
-          <p className="text-gray-600 leading-relaxed">{report.description}</p>
-        </div>
-      )}
-
-      {/* Status timeline */}
-      {report.status !== 'respins' && (
-        <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 mb-4">
-          <h3 className="font-semibold text-gray-900 mb-4 text-sm">Progres</h3>
-          <div className="flex items-center gap-0">
-            {STATUS_STEPS.map((step, i) => {
-              const done = i <= currentStep
-              const active = i === currentStep
-              const cfg = STATUS_CONFIG[step]
-              return (
-                <div key={step} className="flex items-center flex-1 last:flex-none">
-                  <div className="flex flex-col items-center">
-                    <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold border-2 transition-all ${
-                      active ? `${cfg.dot} border-transparent text-white scale-110` :
-                      done   ? 'bg-blue-600 border-blue-600 text-white' :
-                               'bg-gray-100 border-gray-200 text-gray-400'
-                    }`}>
-                      {done && !active ? '✓' : i + 1}
-                    </div>
-                    <span className={`text-xs mt-1.5 font-medium text-center leading-tight ${
-                      active ? 'text-gray-900' : done ? 'text-blue-600' : 'text-gray-400'
-                    }`} style={{ maxWidth: 60 }}>
-                      {cfg.label}
-                    </span>
-                  </div>
-                  {i < STATUS_STEPS.length - 1 && (
-                    <div className={`flex-1 h-0.5 mb-5 mx-1 ${i < currentStep ? 'bg-blue-600' : 'bg-gray-200'}`} />
-                  )}
-                </div>
-              )
-            })}
-          </div>
-        </div>
-      )}
-
-      {/* Reporter info */}
-      {reporter && (
-        <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 mb-4 flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center overflow-hidden flex-shrink-0">
-            {reporter.avatar_url
-              ? <img src={reporter.avatar_url} alt="" className="w-full h-full object-cover" />
-              : <User size={18} className="text-blue-600" />
-            }
-          </div>
-          <div>
-            <p className="text-xs text-gray-400">Raportat de</p>
-            <p className="font-semibold text-gray-900 text-sm">
-              {reporter.full_name || reporter.username || 'Anonim'}
-            </p>
-          </div>
-          {reporter.points > 0 && (
-            <span className="ml-auto text-xs bg-yellow-50 text-yellow-700 px-2 py-1 rounded-full font-medium">
-              ⭐ {reporter.points} pts
-            </span>
-          )}
-        </div>
-      )}
-
-      {/* Vote + share row */}
-      <div className="flex items-center gap-3 mb-6">
+        {/* Back button */}
         <button
-          onClick={handleVote}
-          disabled={votingLoading}
-          className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-semibold text-sm transition-all ${
-            hasVoted
-              ? 'bg-blue-600 text-white shadow-sm hover:bg-blue-700'
-              : 'bg-white border-2 border-gray-200 text-gray-700 hover:border-blue-400'
-          }`}
+          onClick={() => navigate(-1)}
+          className="flex items-center gap-2 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white mb-6 transition-colors"
         >
-          <ThumbsUp size={16} className={hasVoted ? 'fill-white' : ''} />
-          <span>{voteCount} {voteCount === 1 ? 'vot' : 'voturi'}</span>
+          <ArrowLeft size={18} />
+          <span className="text-sm font-medium">Înapoi</span>
         </button>
-        <span className="flex items-center gap-2 text-sm text-gray-400">
-          <MessageCircle size={16} />
-          {comments.length} {comments.length === 1 ? 'comentariu' : 'comentarii'}
-        </span>
-      </div>
 
-      {/* Comments */}
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden mb-4">
-        <div className="px-5 py-4 border-b border-gray-100">
-          <h3 className="font-semibold text-gray-900">Comentarii</h3>
+        {/* Hero image */}
+        {report.image_url && (
+          <div className="rounded-2xl overflow-hidden mb-6 shadow-sm">
+            <img
+              src={report.image_url}
+              alt={report.title}
+              className="w-full max-h-80 object-cover"
+            />
+          </div>
+        )}
+
+        {/* Title + badges */}
+        <div className="mb-4">
+          <div className="flex flex-wrap gap-2 mb-3">
+            <span className={`text-xs font-semibold px-3 py-1 rounded-full ${catColor}`}>
+              {report.category}
+            </span>
+            <span className={`text-xs font-semibold px-3 py-1 rounded-full ${statusInfo.bg} ${statusInfo.text}`}>
+              {statusInfo.label}
+            </span>
+          </div>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">{report.title}</h1>
+          <div className="flex flex-wrap items-center gap-4 text-sm text-gray-400 dark:text-gray-500">
+            {report.address && (
+              <span className="flex items-center gap-1">
+                <MapPin size={14} />
+                {report.address}
+              </span>
+            )}
+            <span className="flex items-center gap-1">
+              <Clock size={14} />
+              {timeAgo(report.created_at)}
+            </span>
+          </div>
         </div>
 
-        {comments.length === 0 ? (
-          <div className="px-5 py-8 text-center text-gray-400 text-sm">
-            Niciun comentariu încă. Fii primul!
+        {/* Description */}
+        {report.description && (
+          <div className="bg-white dark:bg-gray-800 rounded-2xl p-5 shadow-sm border border-gray-100 dark:border-gray-700 mb-4">
+            <h3 className="font-semibold text-gray-900 dark:text-white mb-2 text-sm">Descriere</h3>
+            <p className="text-gray-600 dark:text-gray-400 leading-relaxed">{report.description}</p>
           </div>
-        ) : (
-          <div className="divide-y divide-gray-50">
-            {comments.map(comment => (
-              <div key={comment.id} className="px-5 py-4 flex gap-3">
-                <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center flex-shrink-0">
-                  <User size={14} className="text-gray-400" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className="text-xs font-semibold text-gray-700">
-                      {comment.user_id === user?.id ? 'Tu' : 'Utilizator'}
-                    </span>
-                    <span className="text-xs text-gray-400">{timeAgo(comment.created_at)}</span>
+        )}
+
+        {/* Status timeline */}
+        {report.status !== 'respins' && (
+          <div className="bg-white dark:bg-gray-800 rounded-2xl p-5 shadow-sm border border-gray-100 dark:border-gray-700 mb-4">
+            <h3 className="font-semibold text-gray-900 dark:text-white mb-4 text-sm">Progres</h3>
+            <div className="flex items-center gap-0">
+              {STATUS_STEPS.map((step, i) => {
+                const done = i <= currentStep
+                const active = i === currentStep
+                const cfg = STATUS_CONFIG[step]
+                return (
+                  <div key={step} className="flex items-center flex-1 last:flex-none">
+                    <div className="flex flex-col items-center">
+                      <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold border-2 transition-all ${
+                        active ? `${cfg.dot} border-transparent text-white scale-110` :
+                        done   ? 'bg-blue-600 border-blue-600 text-white' :
+                                 'bg-gray-100 dark:bg-gray-700 border-gray-200 dark:border-gray-600 text-gray-400'
+                      }`}>
+                        {done && !active ? '✓' : i + 1}
+                      </div>
+                      <span className={`text-xs mt-1.5 font-medium text-center leading-tight ${
+                        active ? 'text-gray-900 dark:text-white' : done ? 'text-blue-600' : 'text-gray-400 dark:text-gray-500'
+                      }`} style={{ maxWidth: 60 }}>
+                        {cfg.label}
+                      </span>
+                    </div>
+                    {i < STATUS_STEPS.length - 1 && (
+                      <div className={`flex-1 h-0.5 mb-5 mx-1 ${i < currentStep ? 'bg-blue-600' : 'bg-gray-200 dark:bg-gray-700'}`} />
+                    )}
                   </div>
-                  <p className="text-sm text-gray-700 leading-relaxed">{comment.content}</p>
+                )
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* Reporter info */}
+        {reporter && (
+          <div className="bg-white dark:bg-gray-800 rounded-2xl p-4 shadow-sm border border-gray-100 dark:border-gray-700 mb-4 flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/40 flex items-center justify-center overflow-hidden flex-shrink-0">
+              {reporter.avatar_url
+                ? <img src={reporter.avatar_url} alt="" className="w-full h-full object-cover" />
+                : <User size={18} className="text-blue-600" />
+              }
+            </div>
+            <div>
+              <p className="text-xs text-gray-400 dark:text-gray-500">Raportat de</p>
+              <p className="font-semibold text-gray-900 dark:text-white text-sm">
+                {reporter.full_name || reporter.username || 'Anonim'}
+              </p>
+            </div>
+            {reporter.points > 0 && (
+              <span className="ml-auto text-xs bg-yellow-50 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400 px-2 py-1 rounded-full font-medium">
+                ⭐ {reporter.points} pts
+              </span>
+            )}
+          </div>
+        )}
+
+        {/* Vote row */}
+        <div className="flex items-center gap-3 mb-6">
+          <button
+            onClick={handleVote}
+            disabled={votingLoading}
+            className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-semibold text-sm transition-all ${
+              hasVoted
+                ? 'bg-blue-600 text-white shadow-sm hover:bg-blue-700'
+                : 'bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:border-blue-400'
+            }`}
+          >
+            <ThumbsUp size={16} className={hasVoted ? 'fill-white' : ''} />
+            <span>{voteCount} {voteCount === 1 ? 'vot' : 'voturi'}</span>
+          </button>
+          <span className="flex items-center gap-2 text-sm text-gray-400 dark:text-gray-500">
+            <MessageCircle size={16} />
+            {comments.length} {comments.length === 1 ? 'comentariu' : 'comentarii'}
+          </span>
+        </div>
+
+        {/* Comments */}
+        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden mb-4">
+          <div className="px-5 py-4 border-b border-gray-100 dark:border-gray-700">
+            <h3 className="font-semibold text-gray-900 dark:text-white">Comentarii</h3>
+          </div>
+
+          {comments.length === 0 ? (
+            <div className="px-5 py-8 text-center text-gray-400 dark:text-gray-500 text-sm">
+              Niciun comentariu încă. Fii primul!
+            </div>
+          ) : (
+            <div className="divide-y divide-gray-50 dark:divide-gray-700">
+              {comments.map(comment => (
+                <div key={comment.id} className="px-5 py-4 flex gap-3">
+                  <div className="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center flex-shrink-0">
+                    <User size={14} className="text-gray-400 dark:text-gray-500" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="text-xs font-semibold text-gray-700 dark:text-gray-300">
+                        {comment.user_id === user?.id ? 'Tu' : 'Utilizator'}
+                      </span>
+                      <span className="text-xs text-gray-400 dark:text-gray-500">{timeAgo(comment.created_at)}</span>
+                    </div>
+                    <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">{comment.content}</p>
+                  </div>
                 </div>
+              ))}
+            </div>
+          )}
+
+          {/* Add comment */}
+          {user ? (
+            <form onSubmit={handleComment} className="px-5 py-4 border-t border-gray-100 dark:border-gray-700 flex gap-3">
+              <div className="w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-900/40 flex items-center justify-center flex-shrink-0">
+                <User size={14} className="text-blue-600" />
               </div>
-            ))}
-          </div>
+              <div className="flex-1 flex gap-2">
+                <input
+                  type="text"
+                  value={newComment}
+                  onChange={e => setNewComment(e.target.value)}
+                  placeholder="Adaugă un comentariu..."
+                  className="flex-1 text-sm border-2 border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 rounded-xl px-3 py-2 focus:outline-none focus:border-blue-500 transition-colors"
+                />
+                <button
+                  type="submit"
+                  disabled={submittingComment || !newComment.trim()}
+                  className="bg-blue-600 text-white p-2 rounded-xl hover:bg-blue-700 disabled:opacity-40 transition-colors"
+                >
+                  <Send size={16} />
+                </button>
+              </div>
+            </form>
+          ) : (
+            <div className="px-5 py-4 border-t border-gray-100 dark:border-gray-700 text-center">
+              <Link to="/login" className="text-blue-600 text-sm font-medium hover:underline">
+                Conectează-te pentru a comenta
+              </Link>
+            </div>
+          )}
+        </div>
+
+        {/* Google Maps link */}
+        {(report.latitude && report.longitude) && (
+          <a
+            href={`https://www.google.com/maps?q=${report.latitude},${report.longitude}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-2 text-sm text-blue-600 hover:underline"
+          >
+            <MapPin size={14} />
+            Vezi pe Google Maps ({report.latitude.toFixed(4)}, {report.longitude.toFixed(4)})
+          </a>
         )}
 
-        {/* Add comment */}
-        {user ? (
-          <form onSubmit={handleComment} className="px-5 py-4 border-t border-gray-100 flex gap-3">
-            <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
-              <User size={14} className="text-blue-600" />
-            </div>
-            <div className="flex-1 flex gap-2">
-              <input
-                type="text"
-                value={newComment}
-                onChange={e => setNewComment(e.target.value)}
-                placeholder="Adaugă un comentariu..."
-                className="flex-1 text-sm border-2 border-gray-200 rounded-xl px-3 py-2 focus:outline-none focus:border-blue-500"
-              />
-              <button
-                type="submit"
-                disabled={submittingComment || !newComment.trim()}
-                className="bg-blue-600 text-white p-2 rounded-xl hover:bg-blue-700 disabled:opacity-40 transition-colors"
-              >
-                <Send size={16} />
-              </button>
-            </div>
-          </form>
-        ) : (
-          <div className="px-5 py-4 border-t border-gray-100 text-center">
-            <Link to="/login" className="text-blue-600 text-sm font-medium hover:underline">
-              Conectează-te pentru a comenta
-            </Link>
-          </div>
-        )}
       </div>
-
-      {/* Location coords */}
-      {(report.latitude && report.longitude) && (
-        <a
-          href={`https://www.google.com/maps?q=${report.latitude},${report.longitude}`}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex items-center gap-2 text-sm text-blue-600 hover:underline"
-        >
-          <MapPin size={14} />
-          Vezi pe Google Maps ({report.latitude.toFixed(4)}, {report.longitude.toFixed(4)})
-        </a>
-      )}
     </div>
   )
 }

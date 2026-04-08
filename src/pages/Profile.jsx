@@ -115,7 +115,25 @@ export default function Profile() {
   }
 
   async function saveSettings() {
-    applyToContext(settings)
+    async function saveSettings() {
+  // Apply dark mode directly
+  if (settings.theme === 'dark') {
+    document.documentElement.classList.add('dark')
+  } else {
+    document.documentElement.classList.remove('dark')
+  }
+  document.documentElement.style.fontSize = settings.largeText ? '18px' : ''
+
+  setSaving(true)
+  setSettings(settings)
+  const updates = { settings }
+  if (settings.displayName) updates.full_name = settings.displayName
+  await supabase.from('profiles').update(updates).eq('id', authUser.id)
+  setSaveMsg('Salvat cu succes! ✓')
+  setTimeout(() => setSaveMsg(''), 3000)
+  setSaving(false)
+  await fetchAll()
+}
     setSaving(true)
     setSettings(settings)
     const updates = { settings }

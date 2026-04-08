@@ -114,16 +114,13 @@ export default function Profile() {
     setLoading(false)
   }
 
-  async function saveSettings() {
-    async function saveSettings() {
-  // Apply dark mode directly
+async function saveSettings() {
   if (settings.theme === 'dark') {
     document.documentElement.classList.add('dark')
   } else {
     document.documentElement.classList.remove('dark')
   }
   document.documentElement.style.fontSize = settings.largeText ? '18px' : ''
-
   setSaving(true)
   setSettings(settings)
   const updates = { settings }

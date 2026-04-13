@@ -18,17 +18,17 @@ export default function Navbar() {
         <div className="flex items-center justify-between h-16">
 
           {/* Logo */}
-          <Link to="/acasa" className="flex items-center gap-2">
-  <img
-    src="/logo.png"
-    alt="OrasulVede logo"
-    className="h-20 w-auto"
-    style={{ mixBlendMode: 'multiply' }}
-  />
-  <span className="hidden sm:block text-xs font-semibold tracking-widest text-gray-400 dark:text-gray-500 uppercase leading-tight">
-    VEZI. RAPORTEAZĂ.<br />SCHIMBĂ.
-  </span>
-</Link>
+          <Link to="/acasa" className="flex items-center gap-5 h-full">
+            <img
+              src="/ovlogo.png"
+              alt="OrasulVede logo"
+              className="h-14 w-auto"
+              style={{ mixBlendMode: 'multiply' }}
+            />
+            <span className="text-[10px] font-semibold tracking-widest text-gray-400 dark:text-gray-500 uppercase leading-tight whitespace-nowrap">
+              VEZI. RAPORTEAZĂ. SCHIMBĂ
+            </span>
+          </Link>
 
           {/* Desktop nav links */}
           <div className="hidden md:flex items-center gap-1">

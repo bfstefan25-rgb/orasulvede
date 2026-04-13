@@ -224,34 +224,51 @@ export default function ReportDetail() {
         {report.status !== 'respins' && (
           <div className="bg-white dark:bg-gray-800 rounded-2xl p-5 shadow-sm border border-gray-100 dark:border-gray-700 mb-4">
             <h3 className="font-semibold text-gray-900 dark:text-white mb-4 text-sm">Progres</h3>
-            <div className="flex items-center gap-0">
+
+            {/* Row 1 — circles + connector lines */}
+            <div className="flex items-center mb-2">
               {STATUS_STEPS.map((step, i) => {
                 const done = i <= currentStep
                 const active = i === currentStep
                 const cfg = STATUS_CONFIG[step]
                 return (
                   <div key={step} className="flex items-center flex-1 last:flex-none">
-                    <div className="flex flex-col items-center">
-                      <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold border-2 transition-all ${
-                        active ? `${cfg.dot} border-transparent text-white scale-110` :
-                        done   ? 'bg-blue-600 border-blue-600 text-white' :
-                                 'bg-gray-100 dark:bg-gray-700 border-gray-200 dark:border-gray-600 text-gray-400'
-                      }`}>
-                        {done && !active ? '✓' : i + 1}
-                      </div>
-                      <span className={`text-xs mt-1.5 font-medium text-center leading-tight ${
-                        active ? 'text-gray-900 dark:text-white' : done ? 'text-blue-600' : 'text-gray-400 dark:text-gray-500'
-                      }`} style={{ maxWidth: 60 }}>
-                        {cfg.label}
-                      </span>
+                    <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold border-2 flex-shrink-0 transition-all ${
+                      active ? `${cfg.dot} border-transparent text-white` :
+                      done   ? 'bg-blue-600 border-blue-600 text-white' :
+                               'bg-gray-100 dark:bg-gray-700 border-gray-200 dark:border-gray-600 text-gray-400'
+                    }`}>
+                      {done && !active ? '✓' : i + 1}
                     </div>
                     {i < STATUS_STEPS.length - 1 && (
-                      <div className={`flex-1 h-0.5 mb-5 mx-1 ${i < currentStep ? 'bg-blue-600' : 'bg-gray-200 dark:bg-gray-700'}`} />
+                      <div className={`flex-1 h-0.5 mx-1 ${i < currentStep ? 'bg-blue-600' : 'bg-gray-200 dark:bg-gray-700'}`} />
                     )}
                   </div>
                 )
               })}
             </div>
+
+            {/* Row 2 — labels, mirroring the same flex skeleton so each label sits under its circle */}
+            <div className="flex">
+              {STATUS_STEPS.map((step, i) => {
+                const done = i <= currentStep
+                const active = i === currentStep
+                const cfg = STATUS_CONFIG[step]
+                return (
+                  <div key={step} className="flex items-start flex-1 last:flex-none">
+                    <div className="relative w-8 flex-shrink-0">
+                      <span className={`absolute left-1/2 -translate-x-1/2 whitespace-nowrap text-[10px] font-medium leading-tight ${
+                        active ? 'text-gray-900 dark:text-white' : done ? 'text-blue-600' : 'text-gray-400 dark:text-gray-500'
+                      }`}>
+                        {cfg.label}
+                      </span>
+                    </div>
+                    {i < STATUS_STEPS.length - 1 && <div className="flex-1 mx-1" />}
+                  </div>
+                )
+              })}
+            </div>
+
           </div>
         )}
 

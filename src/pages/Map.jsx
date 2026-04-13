@@ -55,6 +55,7 @@ export default function Map() {
   const [mapReady, setMapReady] = useState(false)
   const [mapError, setMapError] = useState(false)
   const [loading, setLoading] = useState(true)
+  const [showLegend, setShowLegend] = useState(true)
 
   // Fetch reports from Supabase
   useEffect(() => {
@@ -217,14 +218,34 @@ export default function Map() {
 
         {/* Legend */}
         {!mapError && (
-          <div className="absolute top-4 right-4 bg-white rounded-2xl shadow-lg p-4 z-10">
-            <h4 className="font-semibold text-gray-900 mb-3 text-sm">Legendă</h4>
-            {Object.entries(CATEGORY_CONFIG).map(([name, cfg]) => (
-              <div key={name} className="flex items-center gap-2 mb-1.5">
-                <div className="w-3 h-3 rounded-full flex-shrink-0" style={{ backgroundColor: cfg.color }} />
-                <span className="text-xs text-gray-600">{name}</span>
+          <div className="absolute top-4 right-4 z-10">
+            {showLegend ? (
+              <div className="bg-white rounded-2xl shadow-lg p-4">
+                <div className="flex items-center justify-between mb-3">
+                  <h4 className="font-semibold text-gray-900 text-sm">Legendă</h4>
+                  <button
+                    onClick={() => setShowLegend(false)}
+                    className="ml-3 text-gray-400 hover:text-gray-600 text-lg leading-none font-bold"
+                    aria-label="Ascunde legenda"
+                  >
+                    ×
+                  </button>
+                </div>
+                {Object.entries(CATEGORY_CONFIG).map(([name, cfg]) => (
+                  <div key={name} className="flex items-center gap-2 mb-1.5">
+                    <div className="w-3 h-3 rounded-full flex-shrink-0" style={{ backgroundColor: cfg.color }} />
+                    <span className="text-xs text-gray-600">{name}</span>
+                  </div>
+                ))}
               </div>
-            ))}
+            ) : (
+              <button
+                onClick={() => setShowLegend(true)}
+                className="bg-white rounded-xl shadow-lg px-3 py-2 text-xs font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+              >
+                Legendă
+              </button>
+            )}
           </div>
         )}
 

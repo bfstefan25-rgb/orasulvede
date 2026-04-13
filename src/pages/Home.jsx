@@ -138,7 +138,7 @@ export default function Home() {
                 Salut, {firstName}
               </h1>
               <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
-                Ce se intampla in orasul tau
+                Ce se întâmplă în orașul tău
               </p>
             </div>
             {profile && (
@@ -159,7 +159,7 @@ export default function Home() {
             className="mt-4 w-full md:w-auto h-12 bg-primary-600 hover:bg-primary-700 text-white font-semibold px-6 rounded-xl transition-colors text-sm flex items-center justify-center md:justify-start gap-2"
           >
             <Plus size={18} strokeWidth={2.5} />
-            Raporteaza o problema
+            Raportează o problemă
           </button>
         </div>
       </div>
@@ -169,7 +169,7 @@ export default function Home() {
         <div className="grid grid-cols-4 gap-2 md:gap-3">
           {[
             { icon: FileText, label: 'Total',    value: stats.total },
-            { icon: Wrench,   label: 'In lucru', value: stats.inLucru },
+            { icon: Wrench,   label: 'În lucru', value: stats.inLucru },
             { icon: CheckCircle2, label: 'Rezolvate', value: stats.rezolvate },
             { icon: Clock,    label: 'Azi',       value: stats.azi },
           ].map(s => (
@@ -281,12 +281,12 @@ export default function Home() {
             <div className="w-12 h-12 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center mx-auto mb-3">
               <FileText size={20} className="text-gray-400" />
             </div>
-            <p className="text-sm text-gray-500 dark:text-gray-400 font-medium">Nicio problema raportata inca</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400 font-medium">Nicio problemă raportată încă</p>
             <button
               onClick={() => navigate('/raporteaza')}
               className="mt-4 bg-primary-600 text-white h-10 px-5 rounded-xl text-sm font-medium hover:bg-primary-700 transition-colors inline-flex items-center gap-1.5"
             >
-              Fii primul care raporteaza
+              Fii primul care raportează
               <ArrowRight size={14} />
             </button>
           </div>

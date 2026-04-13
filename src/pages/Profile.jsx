@@ -5,7 +5,7 @@ import {
   MapPin, CheckCircle, Trophy, TrendingUp,
   LogOut, Clock, ChevronRight, User, Settings, X, Save, Trash2,
   Sun, Moon, Monitor, Award, Zap, Shield, Newspaper, Star, Crown,
-  Eye, Compass, Target, Flag
+  Eye, Compass, Target, Flag, Lock, ChevronDown, ChevronUp
 } from 'lucide-react'
 import { useSettings } from '../context/SettingsContext'
 
@@ -23,7 +23,7 @@ const STATUS_LABELS = {
 
 const LEVELS = [
   { level:1,  name:'Observator',        min:0,   icon: Eye       },
-  { level:2,  name:'Cetatean Activ',    min:5,   icon: User      },
+  { level:2,  name:'Cetățean Activ',    min:5,   icon: User      },
   { level:3,  name:'Voluntar Civic',    min:15,  icon: Target    },
   { level:4,  name:'Reporter Urban',    min:30,  icon: Newspaper },
   { level:5,  name:'Gardian Comunitar', min:50,  icon: Shield    },
@@ -31,7 +31,7 @@ const LEVELS = [
   { level:7,  name:'Erou Local',        min:110, icon: Star      },
   { level:8,  name:'Campion Civic',     min:150, icon: Award     },
   { level:9,  name:'Ambasador Urban',   min:200, icon: Compass   },
-  { level:10, name:'Legenda Orasului',  min:300, icon: Crown     },
+  { level:10, name:'Legenda Orașului',  min:300, icon: Crown     },
 ]
 
 function getLevel(rc) {
@@ -50,7 +50,7 @@ const BADGES_CONFIG = [
   { id:'guardian',     icon: Shield,   title:'Gardianul Cartierului', desc:'Ai acumulat peste 100 de puncte',      check:(s)=>s.points>=100        },
   { id:'reporter',     icon: Newspaper,title:'Reporter Urban',        desc:'Ai ajuns la 30 de rapoarte',           check:(s)=>s.reports_count>=30  },
   { id:'champion',     icon: Award,    title:'Campion Civic',         desc:'Ai ajuns la 150 de rapoarte',          check:(s)=>s.reports_count>=150 },
-  { id:'legend',       icon: Crown,    title:'Legenda Orasului',      desc:'Ai ajuns la 300 de rapoarte',          check:(s)=>s.reports_count>=300 },
+  { id:'legend',       icon: Crown,    title:'Legenda Orașului',      desc:'Ai ajuns la 300 de rapoarte',          check:(s)=>s.reports_count>=300 },
 ]
 
 const DEFAULT_SETTINGS = {
@@ -80,7 +80,7 @@ function timeAgo(date) {
   const days = Math.floor((Date.now() - new Date(date)) / 86400000)
   if (days === 0) return 'azi'
   if (days === 1) return 'ieri'
-  return `${days} zile in urma`
+  return `${days} zile în urmă`
 }
 
 export default function Profile() {
@@ -96,6 +96,7 @@ export default function Profile() {
   const [saving,   setSaving]     = useState(false)
   const [saveMsg,  setSaveMsg]    = useState('')
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
+  const [showAllLevels,     setShowAllLevels]     = useState(false)
 
   useEffect(() => { fetchAll() }, [])
 
@@ -156,10 +157,10 @@ async function saveSettings() {
           <User size={32} className="text-primary-600" />
         </div>
         <h2 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-white mb-2">Contul tau</h2>
-        <p className="text-gray-500 dark:text-gray-400 text-sm md:text-base mb-8">Autentifica-te pentru a-ti vedea profilul.</p>
+        <p className="text-gray-500 dark:text-gray-400 text-sm md:text-base mb-8">Autentifică-te pentru a-ți vedea profilul.</p>
         <div className="flex flex-col md:flex-row gap-3">
           <button onClick={() => navigate('/login')} className="w-full md:flex-1 border border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-xl h-12 font-medium hover:border-primary-300 transition-colors">Autentificare</button>
-          <button onClick={() => navigate('/register')} className="w-full md:flex-1 bg-primary-600 text-white rounded-xl h-12 font-medium hover:bg-primary-700 transition-colors">Inregistrare</button>
+          <button onClick={() => navigate('/register')} className="w-full md:flex-1 bg-primary-600 text-white rounded-xl h-12 font-medium hover:bg-primary-700 transition-colors">Înregistrare</button>
         </div>
       </div>
     </div>
@@ -192,7 +193,7 @@ async function saveSettings() {
               <div className="flex items-center justify-between p-4 md:p-6 border-b border-gray-200 dark:border-gray-700 sticky top-0 bg-white dark:bg-gray-900 z-10">
                 <div className="flex items-center gap-2">
                   <Settings size={20} className="text-primary-600" />
-                  <h2 className="font-bold text-gray-900 dark:text-white text-lg">Setari</h2>
+                  <h2 className="font-bold text-gray-900 dark:text-white text-lg">Setări</h2>
                 </div>
                 <button onClick={() => setShowSettings(false)} className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-xl transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center">
                   <X size={20} className="text-gray-500 dark:text-gray-400" />
@@ -206,7 +207,7 @@ async function saveSettings() {
                   <h3 className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-4">Profil</h3>
                   <div className="space-y-4">
                     <div>
-                      <label className="text-sm font-medium text-gray-700 dark:text-gray-300 block mb-1">Nume afisat</label>
+                      <label className="text-sm font-medium text-gray-700 dark:text-gray-300 block mb-1">Nume afișat</label>
                       <input
                         type="text"
                         value={settings.displayName || name}
@@ -223,9 +224,9 @@ async function saveSettings() {
                   <h3 className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-4">Gamification</h3>
                   <div className="space-y-4">
                     {[
-                      { key: 'arataNivel', label: 'Afiseaza nivelul pe profil public', desc: 'Ceilalti utilizatori iti pot vedea nivelul' },
-                      { key: 'arataBadge', label: 'Afiseaza badge-urile pe profil public', desc: 'Badge-urile castigate sunt vizibile public' },
-                      { key: 'notifDepasit', label: 'Notificare cand esti depasit in clasament', desc: 'Primesti o alerta cand cineva iti ia locul' },
+                      { key: 'arataNivel', label: 'Afișează nivelul pe profil public', desc: 'Ceilalți utilizatori îți pot vedea nivelul' },
+                      { key: 'arataBadge', label: 'Afișează badge-urile pe profil public', desc: 'Badge-urile câștigate sunt vizibile public' },
+                      { key: 'notifDepasit', label: 'Notificare când ești depășit în clasament', desc: 'Primești o alertă când cineva îți ia locul' },
                     ].map(({ key, label, desc }) => (
                       <div key={key} className="flex items-center justify-between gap-4">
                         <div className="flex-1">
@@ -243,7 +244,7 @@ async function saveSettings() {
                   <h3 className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-4">Aspect</h3>
                   <div className="space-y-4">
                     <div>
-                      <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Tema aplicatiei</p>
+                      <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Tema aplicației</p>
                       <div className="flex gap-2">
                         {[
                           { val: 'luminos', label: 'Luminos', IconComp: Sun },
@@ -268,7 +269,7 @@ async function saveSettings() {
                     <div className="flex items-center justify-between gap-4">
                       <div className="flex-1">
                         <p className="text-sm font-medium text-gray-700 dark:text-gray-300">Text mai mare</p>
-                        <p className="text-xs text-gray-400 dark:text-gray-500">Mareste dimensiunea textului pentru accesibilitate</p>
+                        <p className="text-xs text-gray-400 dark:text-gray-500">Mărește dimensiunea textului pentru accesibilitate</p>
                       </div>
                       <Toggle value={settings.textMare} onChange={v => setSettings(s => ({ ...s, textMare: v }))} />
                     </div>
@@ -280,8 +281,8 @@ async function saveSettings() {
                   <h3 className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-4">Comunitate</h3>
                   <div className="space-y-4">
                     {[
-                      { key: 'urmaresteCartier', label: 'Urmareste rapoartele din cartierul tau', desc: 'Vezi automat problemele din zona ta pe harta' },
-                      { key: 'rezumatSaptamanal', label: 'Rezumat saptamanal pe email', desc: 'Primesti un email cu problemele din zona ta' },
+                      { key: 'urmaresteCartier', label: 'Urmărește rapoartele din cartierul tău', desc: 'Vezi automat problemele din zona ta pe hartă' },
+                      { key: 'rezumatSaptamanal', label: 'Rezumat săptămânal pe email', desc: 'Primești un email cu problemele din zona ta' },
                     ].map(({ key, label, desc }) => (
                       <div key={key} className="flex items-center justify-between gap-4">
                         <div className="flex-1">
@@ -311,11 +312,11 @@ async function saveSettings() {
                       </button>
                     ) : (
                       <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl p-4">
-                        <p className="text-sm font-semibold text-red-700 dark:text-red-400 mb-1">Esti sigur?</p>
-                        <p className="text-xs text-red-500 dark:text-red-400 mb-3">Aceasta actiune este ireversibila. Toate raportarile tale vor fi sterse.</p>
+                        <p className="text-sm font-semibold text-red-700 dark:text-red-400 mb-1">Ești sigur?</p>
+                        <p className="text-xs text-red-500 dark:text-red-400 mb-3">Această acțiune este ireversibilă. Toate raportările tale vor fi șterse.</p>
                         <div className="flex gap-2">
-                          <button onClick={() => setShowDeleteConfirm(false)} className="flex-1 py-2 rounded-xl border border-gray-200 dark:border-gray-600 text-sm font-medium text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors min-h-[44px]">Anuleaza</button>
-                          <button onClick={deleteAccount} className="flex-1 py-2 rounded-xl bg-red-600 text-white text-sm font-medium hover:bg-red-700 transition-colors min-h-[44px]">Sterge</button>
+                          <button onClick={() => setShowDeleteConfirm(false)} className="flex-1 py-2 rounded-xl border border-gray-200 dark:border-gray-600 text-sm font-medium text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors min-h-[44px]">Anulează</button>
+                          <button onClick={deleteAccount} className="flex-1 py-2 rounded-xl bg-red-600 text-white text-sm font-medium hover:bg-red-700 transition-colors min-h-[44px]">Șterge</button>
                         </div>
                       </div>
                     )}
@@ -332,7 +333,7 @@ async function saveSettings() {
                   className="w-full flex items-center justify-center gap-2 bg-primary-600 hover:bg-primary-700 text-white h-12 rounded-xl font-semibold transition-colors disabled:opacity-60"
                 >
                   <Save size={18} />
-                  {saving ? 'Se salveaza...' : 'Salveaza setarile'}
+                  {saving ? 'Se salvează...' : 'Salvează setările'}
                 </button>
               </div>
             </div>
@@ -340,75 +341,82 @@ async function saveSettings() {
         )}
 
         {/* Hero header */}
-        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm p-4 md:p-6 mb-4 md:mb-6">
-          <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
-            {/* Avatar + Info */}
-            <div className="flex flex-col items-center md:flex-row md:items-center gap-4">
-              <div className="relative flex-shrink-0">
-                <div className="w-20 h-20 rounded-full flex items-center justify-center overflow-hidden bg-primary-50 dark:bg-blue-900/40 border-2 border-primary-200 dark:border-primary-800">
-                  {authUser.user_metadata?.avatar_url
-                    ? <img src={authUser.user_metadata.avatar_url} alt="" className="w-full h-full object-cover" />
-                    : <span className="text-2xl font-bold text-primary-600 dark:text-primary-400">{initials}</span>
-                  }
+        <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden mb-6">
+          {/* Banner */}
+          <div className="h-28 md:h-36 bg-gradient-to-r from-primary-600 via-primary-500 to-indigo-500" />
+
+          {/* Content */}
+          <div className="px-4 md:px-6 pb-5">
+            <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-3">
+
+              {/* Avatar + Info */}
+              <div className="flex flex-col md:flex-row md:items-end gap-3 md:gap-4">
+                <div className="relative -mt-12 md:-mt-14 flex-shrink-0">
+                  <div className="w-20 h-20 md:w-24 md:h-24 rounded-full overflow-hidden border-4 border-white dark:border-gray-800 bg-primary-50 dark:bg-blue-900/40 flex items-center justify-center">
+                    {authUser.user_metadata?.avatar_url
+                      ? <img src={authUser.user_metadata.avatar_url} alt="" className="w-full h-full object-cover" />
+                      : <span className="text-2xl font-bold text-primary-600 dark:text-primary-400">{initials}</span>
+                    }
+                  </div>
+                  <div className="absolute -bottom-1 -right-1 w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold border-2 border-white dark:border-gray-800 bg-primary-600 text-white">
+                    {levelInfo.level}
+                  </div>
                 </div>
-                <div className="absolute -bottom-1 -right-1 w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold border-2 border-white dark:border-gray-800 bg-primary-600 text-white">
-                  {levelInfo.level}
-                </div>
-              </div>
-              <div className="text-center md:text-left">
-                <h1 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-white">{name}</h1>
-                <p className="text-gray-500 dark:text-gray-400 text-sm">{authUser.email}</p>
-                <div className="flex items-center justify-center md:justify-start gap-2 mt-1.5">
-                  <LevelIcon size={16} className="text-primary-600 dark:text-primary-400" />
-                  <span className="text-sm font-medium text-gray-900 dark:text-gray-100">Nivel {levelInfo.level} — {levelInfo.name}</span>
-                </div>
-                {levelInfo.nextLevel && (
-                  <div className="flex items-center justify-center md:justify-start gap-2 mt-2">
-                    <div className="w-32 h-1.5 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
-                      <div className="h-full rounded-full bg-primary-600 transition-all" style={{ width: `${levelInfo.progress}%` }} />
+
+                <div className="md:mb-1">
+                  <h1 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-white">{name}</h1>
+                  <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 mt-0.5">
+                    <span className="text-gray-500 dark:text-gray-400 text-sm">{authUser.email}</span>
+                    <span className="text-gray-300 dark:text-gray-600">·</span>
+                    <span className="text-gray-500 dark:text-gray-400 text-sm">Membru din {joinYear}</span>
+                  </div>
+                  <div className="flex items-center gap-2 mt-2">
+                    <LevelIcon size={15} className="text-primary-600 dark:text-primary-400" />
+                    <span className="text-sm font-semibold text-gray-900 dark:text-white">Nivel {levelInfo.level} — {levelInfo.name}</span>
+                  </div>
+                  {levelInfo.nextLevel ? (
+                    <div className="flex items-center gap-2 mt-1.5">
+                      <div className="w-40 h-1.5 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                        <div className="h-full rounded-full bg-primary-600 transition-all" style={{ width: `${levelInfo.progress}%` }} />
+                      </div>
+                      <span className="text-gray-500 dark:text-gray-400 text-xs">{stats.reports_count}/{levelInfo.nextLevel.min} raportări</span>
                     </div>
-                    <span className="text-gray-500 dark:text-gray-400 text-xs">{stats.reports_count}/{levelInfo.nextLevel.min}</span>
-                  </div>
-                )}
-                {!levelInfo.nextLevel && (
-                  <div className="flex items-center justify-center md:justify-start gap-1.5 mt-2">
-                    <Crown size={14} className="text-primary-600 dark:text-primary-400" />
-                    <span className="text-primary-600 dark:text-primary-400 text-xs font-medium">Nivel maxim atins</span>
-                  </div>
-                )}
+                  ) : (
+                    <div className="flex items-center gap-1.5 mt-1.5">
+                      <Crown size={14} className="text-primary-600 dark:text-primary-400" />
+                      <span className="text-primary-600 dark:text-primary-400 text-xs font-medium">Nivel maxim atins</span>
+                    </div>
+                  )}
+                </div>
               </div>
-            </div>
-            {/* Actions */}
-            <div className="flex flex-col md:flex-row gap-2 md:flex-shrink-0">
-              <button
-                onClick={() => setShowSettings(true)}
-                className="flex items-center justify-center gap-2 border border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-300 text-sm px-4 h-12 rounded-xl font-medium hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-              >
-                <Settings size={16} />
-                Setari
-              </button>
-              <button
-                onClick={handleLogout}
-                className="flex items-center justify-center gap-2 border border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-300 text-sm px-4 h-12 rounded-xl font-medium hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-              >
-                <LogOut size={16} />
-                Deconectare
-              </button>
+
+              {/* Actions */}
+              <div className="flex gap-2 flex-shrink-0">
+                <button onClick={() => setShowSettings(true)} className="flex items-center justify-center gap-2 border border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-300 text-sm px-4 h-10 rounded-xl font-medium hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                  <Settings size={16} />
+                  Setări
+                </button>
+                <button onClick={handleLogout} className="flex items-center justify-center gap-2 border border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-300 text-sm px-4 h-10 rounded-xl font-medium hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                  <LogOut size={16} />
+                  Deconectare
+                </button>
+              </div>
+
             </div>
           </div>
         </div>
 
         {/* Stats grid */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4 md:mb-6">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
           {[
-            { icon: MapPin,      label: 'Raportari', value: stats.reports_count                  },
-            { icon: CheckCircle, label: 'Rezolvate',  value: stats.resolved_count                 },
-            { icon: Trophy,      label: 'Puncte',     value: stats.points.toLocaleString('ro-RO') },
-            { icon: TrendingUp,  label: 'Rank',       value: myRank ? `#${myRank}` : '--'         },
-          ].map(({ icon: Icon, label, value }) => (
+            { icon: MapPin,      label: 'Raportări', value: stats.reports_count,                   iconBg: 'bg-blue-100 dark:bg-blue-900/30',   iconColor: 'text-blue-600 dark:text-blue-400'    },
+            { icon: CheckCircle, label: 'Rezolvate',  value: stats.resolved_count,                  iconBg: 'bg-green-100 dark:bg-green-900/30',  iconColor: 'text-green-600 dark:text-green-400'  },
+            { icon: Trophy,      label: 'Puncte',     value: stats.points.toLocaleString('ro-RO'),  iconBg: 'bg-yellow-100 dark:bg-yellow-900/30', iconColor: 'text-yellow-600 dark:text-yellow-400' },
+            { icon: TrendingUp,  label: 'Rank',       value: myRank ? `#${myRank}` : '--',          iconBg: 'bg-purple-100 dark:bg-purple-900/30', iconColor: 'text-purple-600 dark:text-purple-400' },
+          ].map(({ icon: Icon, label, value, iconBg, iconColor }) => (
             <div key={label} className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm p-4 text-center">
-              <div className="w-10 h-10 bg-gray-100 dark:bg-gray-700 rounded-xl flex items-center justify-center mx-auto mb-2">
-                <Icon size={20} className="text-gray-500 dark:text-gray-400" />
+              <div className={`w-10 h-10 ${iconBg} rounded-xl flex items-center justify-center mx-auto mb-2`}>
+                <Icon size={20} className={iconColor} />
               </div>
               <p className="text-xl font-bold text-gray-900 dark:text-white">{value}</p>
               <p className="text-gray-500 dark:text-gray-400 text-xs mt-1">{label}</p>
@@ -421,7 +429,7 @@ async function saveSettings() {
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
               <TrendingUp size={18} className="text-gray-500 dark:text-gray-400" />
-              <h2 className="font-bold text-gray-900 dark:text-white text-sm md:text-base">Drumul tau</h2>
+              <h2 className="font-bold text-gray-900 dark:text-white text-sm md:text-base">Drumul tău</h2>
             </div>
             <span className="text-xs text-gray-500 dark:text-gray-400">Nivel {levelInfo.level}/10</span>
           </div>
@@ -438,57 +446,52 @@ async function saveSettings() {
 
           {/* Level list */}
           <div className="space-y-1.5">
-            {LEVELS.map((l) => {
-              const reached = stats.reports_count >= l.min
-              const isCurrent = l.level === levelInfo.level
-              const LIcon = l.icon
-              return (
-                <div
-                  key={l.level}
-                  className={`flex items-center gap-3 p-2.5 rounded-xl transition-colors ${
-                    isCurrent
-                      ? 'bg-primary-50 dark:bg-blue-900/30'
-                      : ''
-                  }`}
-                >
+            {LEVELS
+              .filter(l => showAllLevels || Math.abs(l.level - levelInfo.level) <= 2)
+              .map((l) => {
+                const reached = stats.reports_count >= l.min
+                const isCurrent = l.level === levelInfo.level
+                const LIcon = l.icon
+                return (
                   <div
-                    className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
+                    key={l.level}
+                    className={`flex items-center gap-3 p-2.5 rounded-xl transition-colors ${isCurrent ? 'bg-primary-50 dark:bg-blue-900/30' : ''}`}
+                  >
+                    <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
                       isCurrent
                         ? 'bg-primary-600 text-white'
                         : reached
                           ? 'bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900'
                           : 'bg-gray-100 dark:bg-gray-700 text-gray-400 dark:text-gray-500'
-                    }`}
-                  >
-                    <LIcon size={16} />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className={`text-sm font-medium truncate ${
-                      isCurrent
-                        ? 'text-primary-700 dark:text-primary-400'
-                        : reached
-                          ? 'text-gray-900 dark:text-white'
-                          : 'text-gray-400 dark:text-gray-500'
                     }`}>
-                      {l.name}
-                    </p>
+                      <LIcon size={16} />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className={`text-sm font-medium truncate ${
+                        isCurrent ? 'text-primary-700 dark:text-primary-400' : reached ? 'text-gray-900 dark:text-white' : 'text-gray-400 dark:text-gray-500'
+                      }`}>
+                        {l.name}
+                      </p>
+                    </div>
+                    <span className={`text-xs flex-shrink-0 ${
+                      isCurrent ? 'text-primary-600 dark:text-primary-400 font-semibold' : reached ? 'text-gray-500 dark:text-gray-400' : 'text-gray-400 dark:text-gray-500'
+                    }`}>
+                      {l.min}+ raportări
+                    </span>
+                    {reached && (
+                      <CheckCircle size={16} className={`flex-shrink-0 ${isCurrent ? 'text-primary-600 dark:text-primary-400' : 'text-gray-400 dark:text-gray-500'}`} />
+                    )}
                   </div>
-                  <span className={`text-xs flex-shrink-0 ${
-                    isCurrent
-                      ? 'text-primary-600 dark:text-primary-400 font-semibold'
-                      : reached
-                        ? 'text-gray-500 dark:text-gray-400'
-                        : 'text-gray-400 dark:text-gray-500'
-                  }`}>
-                    {l.min}+ raportari
-                  </span>
-                  {reached && (
-                    <CheckCircle size={16} className={`flex-shrink-0 ${isCurrent ? 'text-primary-600 dark:text-primary-400' : 'text-gray-400 dark:text-gray-500'}`} />
-                  )}
-                </div>
-              )
-            })}
+                )
+              })}
           </div>
+
+          <button
+            onClick={() => setShowAllLevels(v => !v)}
+            className="mt-3 w-full flex items-center justify-center gap-1.5 text-xs font-medium text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 py-2 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+          >
+            {showAllLevels ? <><ChevronUp size={14} /> Restrânge</> : <><ChevronDown size={14} /> Vezi toate nivelurile</>}
+          </button>
         </div>
 
         {/* Badges */}
@@ -496,9 +499,9 @@ async function saveSettings() {
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
               <Award size={18} className="text-gray-500 dark:text-gray-400" />
-              <h2 className="font-bold text-gray-900 dark:text-white text-sm md:text-base">Badge-uri obtinute</h2>
+              <h2 className="font-bold text-gray-900 dark:text-white text-sm md:text-base">Badge-uri obținute</h2>
             </div>
-            <span className="text-xs text-gray-500 dark:text-gray-400">{earnedBadges.length}/{badges.length} obtinute</span>
+            <span className="text-xs text-gray-500 dark:text-gray-400">{earnedBadges.length}/{badges.length} obținute</span>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             {badges.map(badge => {
@@ -506,27 +509,41 @@ async function saveSettings() {
               return (
                 <div
                   key={badge.id}
-                  className={`p-4 rounded-xl border transition-all ${
+                  className={`p-4 rounded-xl border transition-all relative ${
                     badge.earned
                       ? 'border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800'
-                      : 'border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 opacity-40'
+                      : 'border-dashed border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/60'
                   }`}
                 >
-                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center mb-3 ${
-                    badge.earned
-                      ? 'bg-primary-50 dark:bg-blue-900/30'
-                      : 'bg-gray-100 dark:bg-gray-700'
-                  }`}>
-                    <BadgeIcon size={20} className={badge.earned ? 'text-primary-600 dark:text-primary-400' : 'text-gray-400 dark:text-gray-500'} />
-                  </div>
-                  <p className="font-semibold text-gray-900 dark:text-white text-sm">{badge.title}</p>
-                  <p className="text-gray-500 dark:text-gray-400 text-xs mt-1">{badge.desc}</p>
-                  {badge.earned && (
-                    <div className="flex items-center gap-1 mt-2">
-                      <CheckCircle size={12} className="text-primary-600 dark:text-primary-400" />
-                      <span className="text-xs text-primary-600 dark:text-primary-400 font-medium">Obtinut</span>
+                  {!badge.earned && (
+                    <div className="absolute top-2.5 right-2.5 w-5 h-5 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
+                      <Lock size={10} className="text-gray-400 dark:text-gray-500" />
                     </div>
                   )}
+                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center mb-3 ${
+                    badge.earned ? 'bg-primary-50 dark:bg-blue-900/30' : 'bg-gray-100 dark:bg-gray-800'
+                  }`}>
+                    <BadgeIcon size={20} className={badge.earned ? 'text-primary-600 dark:text-primary-400' : 'text-gray-300 dark:text-gray-600'} />
+                  </div>
+                  <p className={`font-semibold text-sm ${badge.earned ? 'text-gray-900 dark:text-white' : 'text-gray-400 dark:text-gray-500'}`}>
+                    {badge.title}
+                  </p>
+                  <p className={`text-xs mt-1 ${badge.earned ? 'text-gray-500 dark:text-gray-400' : 'text-gray-300 dark:text-gray-600'}`}>
+                    {badge.desc}
+                  </p>
+                  <div className="flex items-center gap-1 mt-2">
+                    {badge.earned ? (
+                      <>
+                        <CheckCircle size={12} className="text-primary-600 dark:text-primary-400" />
+                        <span className="text-xs text-primary-600 dark:text-primary-400 font-medium">Obținut</span>
+                      </>
+                    ) : (
+                      <>
+                        <Lock size={12} className="text-gray-300 dark:text-gray-600" />
+                        <span className="text-xs text-gray-400 dark:text-gray-600">Blocat</span>
+                      </>
+                    )}
+                  </div>
                 </div>
               )
             })}
@@ -538,15 +555,15 @@ async function saveSettings() {
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
               <MapPin size={18} className="text-gray-500 dark:text-gray-400" />
-              <h2 className="font-bold text-gray-900 dark:text-white text-sm md:text-base">Raportarile mele</h2>
+              <h2 className="font-bold text-gray-900 dark:text-white text-sm md:text-base">Raportările mele</h2>
             </div>
-            <span className="text-gray-500 dark:text-gray-400 text-xs">{myReports.length} raportari</span>
+            <span className="text-gray-500 dark:text-gray-400 text-xs">{myReports.length} raportări</span>
           </div>
           {myReports.length === 0 ? (
             <div className="text-center py-10">
               <MapPin size={36} className="text-gray-300 dark:text-gray-600 mx-auto mb-3" />
-              <p className="text-gray-500 dark:text-gray-400 text-sm mb-4">Nu ai raportat nimic inca</p>
-              <Link to="/raporteaza" className="inline-block bg-primary-600 text-white px-5 h-12 leading-[48px] rounded-xl text-sm font-medium hover:bg-primary-700 transition-colors">Raporteaza prima problema</Link>
+              <p className="text-gray-500 dark:text-gray-400 text-sm mb-4">Nu ai raportat nimic încă</p>
+              <Link to="/raporteaza" className="inline-block bg-primary-600 text-white px-5 h-12 leading-[48px] rounded-xl text-sm font-medium hover:bg-primary-700 transition-colors">Raportează prima problemă</Link>
             </div>
           ) : (
             <div className="space-y-2">

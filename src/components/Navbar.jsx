@@ -19,15 +19,16 @@ export default function Navbar() {
 
           {/* Logo */}
           <Link to="/acasa" className="flex items-center gap-2">
-            <img
-              src="/logo.png"
-              alt="OrasulVede logo"
-              className="h-14 w-auto"
-            />
-            <span className="hidden sm:block text-xs font-semibold tracking-widest text-gray-400 dark:text-gray-500 uppercase leading-tight">
-              VEZI. RAPORTEAZĂ.<br />SCHIMBĂ.
-            </span>
-          </Link>
+  <img
+    src="/logo.png"
+    alt="OrasulVede logo"
+    className="h-20 w-auto"
+    style={{ mixBlendMode: 'multiply' }}
+  />
+  <span className="hidden sm:block text-xs font-semibold tracking-widest text-gray-400 dark:text-gray-500 uppercase leading-tight">
+    VEZI. RAPORTEAZĂ.<br />SCHIMBĂ.
+  </span>
+</Link>
 
           {/* Desktop nav links */}
           <div className="hidden md:flex items-center gap-1">

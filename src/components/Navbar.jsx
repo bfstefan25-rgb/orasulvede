@@ -22,7 +22,7 @@ export default function Navbar() {
             <img
               src="/logo.png"
               alt="OrasulVede logo"
-              className="h-11 w-auto"
+              className="h-14 w-auto"
             />
             <span className="hidden sm:block text-xs font-semibold tracking-widest text-gray-400 dark:text-gray-500 uppercase leading-tight">
               VEZI. RAPORTEAZĂ.<br />SCHIMBĂ.

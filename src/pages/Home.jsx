@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { supabase } from '../supabaseClient'
+import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 
 const CATEGORIES = ['Toate', 'Infrastructură', 'Iluminat', 'Trafic', 'Trotuare', 'Parcuri', 'Gunoi', 'Animale', 'Alte pericole']

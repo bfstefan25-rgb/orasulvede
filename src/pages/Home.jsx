@@ -2,35 +2,25 @@ import { useState, useEffect, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
+import { ChevronUp, MessageSquare, MapPin, Clock, TrendingUp, FileText, Wrench, CheckCircle2, Plus, ArrowRight } from 'lucide-react'
 
 const CATEGORIES = ['Toate', 'Infrastructură', 'Iluminat', 'Trafic', 'Trotuare', 'Parcuri', 'Gunoi', 'Animale', 'Alte pericole']
 
 const STATUS_CONFIG = {
-  raportat:      { label: 'Raportat',      bg: 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300' },
-  in_verificare: { label: 'În verificare', bg: 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/40 dark:text-yellow-300' },
-  in_lucru:      { label: 'În lucru',      bg: 'bg-orange-100 text-orange-700 dark:bg-orange-900/40 dark:text-orange-300' },
-  rezolvat:      { label: 'Rezolvat',      bg: 'bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300' },
-  respins:       { label: 'Respins',       bg: 'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300' },
-}
-
-const CATEGORY_COLORS = {
-  'Infrastructură': 'border-orange-400',
-  'Iluminat':       'border-yellow-400',
-  'Trafic':         'border-red-400',
-  'Trotuare':       'border-purple-400',
-  'Parcuri':        'border-green-400',
-  'Gunoi':          'border-gray-400',
-  'Animale':        'border-pink-400',
-  'Alte pericole':  'border-rose-400',
+  raportat:      { label: 'Raportat',      bg: 'bg-primary-50 text-primary-600 dark:bg-primary-700/20 dark:text-primary-100' },
+  in_verificare: { label: 'În verificare', bg: 'bg-amber-50 text-amber-700 dark:bg-amber-900/20 dark:text-amber-200' },
+  in_lucru:      { label: 'În lucru',      bg: 'bg-amber-50 text-amber-700 dark:bg-amber-900/20 dark:text-amber-200' },
+  rezolvat:      { label: 'Rezolvat',      bg: 'bg-emerald-50 text-emerald-700 dark:bg-emerald-900/20 dark:text-emerald-200' },
+  respins:       { label: 'Respins',       bg: 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300' },
 }
 
 function timeAgo(dateStr) {
   const diff = Math.floor((Date.now() - new Date(dateStr)) / 1000)
-  if (diff < 60)    return 'acum câteva secunde'
-  if (diff < 3600)  return `acum ${Math.floor(diff / 60)} min`
-  if (diff < 86400) return `acum ${Math.floor(diff / 3600)}h`
+  if (diff < 60)    return 'acum'
+  if (diff < 3600)  return `${Math.floor(diff / 60)} min`
+  if (diff < 86400) return `${Math.floor(diff / 3600)}h`
   const days = Math.floor(diff / 86400)
-  return days === 1 ? 'ieri' : `acum ${days} zile`
+  return days === 1 ? 'ieri' : `${days}z`
 }
 
 export default function Home() {
@@ -46,7 +36,6 @@ export default function Home() {
   const [userVotes, setUserVotes]     = useState({})
   const [trending, setTrending]       = useState([])
 
-  // ── fetch profile ────────────────────────────────────────────────
   useEffect(() => {
     if (!user) return
     supabase
@@ -57,7 +46,6 @@ export default function Home() {
       .then(({ data }) => { if (data) setProfile(data) })
   }, [user])
 
-  // ── fetch stats ──────────────────────────────────────────────────
   useEffect(() => {
     async function fetchStats() {
       const today = new Date(); today.setHours(0,0,0,0)
@@ -77,7 +65,6 @@ export default function Home() {
     fetchStats()
   }, [])
 
-  // ── fetch reports ────────────────────────────────────────────────
   const fetchReports = useCallback(async () => {
     setLoading(true)
     let query = supabase
@@ -96,7 +83,6 @@ export default function Home() {
 
   useEffect(() => { fetchReports() }, [fetchReports])
 
-  // ── fetch trending (top voted last 7 days) ───────────────────────
   useEffect(() => {
     const week = new Date(Date.now() - 7 * 86400 * 1000).toISOString()
     supabase
@@ -108,7 +94,6 @@ export default function Home() {
       .then(({ data }) => { if (data) setTrending(data) })
   }, [])
 
-  // ── fetch user votes ─────────────────────────────────────────────
   useEffect(() => {
     if (!user) return
     supabase
@@ -124,7 +109,6 @@ export default function Home() {
       })
   }, [user])
 
-  // ── vote handler ─────────────────────────────────────────────────
   async function handleVote(e, reportId) {
     e.stopPropagation()
     if (!user) { navigate('/login'); return }
@@ -140,94 +124,95 @@ export default function Home() {
     }
   }
 
-  // ── helpers ──────────────────────────────────────────────────────
   const firstName = profile?.full_name?.split(' ')[0] || user?.email?.split('@')[0] || 'Cetățean'
-  const levelColors = ['bg-gray-400','bg-green-500','bg-blue-500','bg-purple-500','bg-yellow-500','bg-red-500']
-  const lvl = Math.min((profile?.level ?? 1) - 1, levelColors.length - 1)
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950 pb-24">
 
-      {/* ── HERO BANNER ─────────────────────────────────────────── */}
-      <div className="bg-gradient-to-br from-blue-600 via-blue-500 to-indigo-600 dark:from-blue-800 dark:via-blue-700 dark:to-indigo-800 px-4 pt-8 pb-12">
+      {/* Header */}
+      <div className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 px-4 pt-6 pb-5 md:px-8">
         <div className="max-w-4xl mx-auto">
-          <div className="flex items-center justify-between flex-wrap gap-4">
+          <div className="flex items-start justify-between gap-4">
             <div>
-              <p className="text-blue-100 text-sm font-medium uppercase tracking-widest mb-1">Bun venit înapoi</p>
-              <h1 className="text-white text-3xl font-extrabold leading-tight">
-                Salut, {firstName}! 👋
+              <h1 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-white leading-tight">
+                Salut, {firstName}
               </h1>
-              <p className="text-blue-100 mt-1 text-sm">
-                Ajută-ți orașul — raportează o problemă acum
+              <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
+                Ce se intampla in orasul tau
               </p>
             </div>
-
-            {/* Level badge */}
             {profile && (
-              <div className="bg-white/20 backdrop-blur rounded-2xl px-5 py-3 text-white text-center min-w-[120px]">
-                <div className={`w-8 h-8 rounded-full ${levelColors[lvl]} mx-auto mb-1 flex items-center justify-center font-bold text-sm`}>
+              <div className="flex items-center gap-2 bg-gray-50 dark:bg-gray-800 rounded-xl px-3 py-2 flex-shrink-0">
+                <div className="w-8 h-8 rounded-full bg-primary-600 flex items-center justify-center text-white text-xs font-bold">
                   {profile.level ?? 1}
                 </div>
-                <p className="font-bold text-lg leading-none">{profile.points ?? 0}</p>
-                <p className="text-xs text-blue-100">puncte</p>
+                <div className="text-right">
+                  <p className="text-sm font-semibold text-gray-900 dark:text-white leading-none">{profile.points ?? 0}</p>
+                  <p className="text-xs text-gray-400">puncte</p>
+                </div>
               </div>
             )}
           </div>
 
-          {/* CTA button */}
           <button
             onClick={() => navigate('/raporteaza')}
-            className="mt-6 bg-white text-blue-600 font-bold px-6 py-3 rounded-full shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 transition-all text-sm flex items-center gap-2"
+            className="mt-4 w-full md:w-auto h-12 bg-primary-600 hover:bg-primary-700 text-white font-semibold px-6 rounded-xl transition-colors text-sm flex items-center justify-center md:justify-start gap-2"
           >
-            <span className="text-lg">📍</span> Raportează o problemă
+            <Plus size={18} strokeWidth={2.5} />
+            Raporteaza o problema
           </button>
         </div>
       </div>
 
-      {/* ── STATS CARDS ─────────────────────────────────────────── */}
-      <div className="max-w-4xl mx-auto px-4 -mt-6">
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+      {/* Stats */}
+      <div className="max-w-4xl mx-auto px-4 md:px-8 mt-5">
+        <div className="grid grid-cols-4 gap-2 md:gap-3">
           {[
-            { icon: '📋', label: 'Total rapoarte', value: stats.total,    color: 'text-blue-600  dark:text-blue-400'  },
-            { icon: '🔧', label: 'În lucru',       value: stats.inLucru,  color: 'text-orange-500 dark:text-orange-400' },
-            { icon: '✅', label: 'Rezolvate',      value: stats.rezolvate,color: 'text-green-600 dark:text-green-400'  },
-            { icon: '🆕', label: 'Azi',            value: stats.azi,      color: 'text-purple-600 dark:text-purple-400' },
+            { icon: FileText, label: 'Total',    value: stats.total },
+            { icon: Wrench,   label: 'In lucru', value: stats.inLucru },
+            { icon: CheckCircle2, label: 'Rezolvate', value: stats.rezolvate },
+            { icon: Clock,    label: 'Azi',       value: stats.azi },
           ].map(s => (
-            <div key={s.label} className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-4 flex flex-col items-start gap-1 border border-gray-100 dark:border-gray-700">
-              <span className="text-2xl">{s.icon}</span>
-              <span className={`text-2xl font-extrabold ${s.color}`}>{s.value}</span>
-              <span className="text-xs text-gray-500 dark:text-gray-400 font-medium">{s.label}</span>
+            <div key={s.label} className="bg-white dark:bg-gray-800 rounded-xl p-3 md:p-4 border border-gray-200 dark:border-gray-700">
+              <s.icon size={16} className="text-gray-400 dark:text-gray-500 mb-2" strokeWidth={1.8} />
+              <p className="text-lg md:text-xl font-bold text-gray-900 dark:text-white leading-none">{s.value}</p>
+              <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">{s.label}</p>
             </div>
           ))}
         </div>
       </div>
 
-      {/* ── TRENDING ────────────────────────────────────────────── */}
+      {/* Trending */}
       {trending.length > 0 && (
-        <div className="max-w-4xl mx-auto px-4 mt-8">
-          <h2 className="text-base font-bold text-gray-800 dark:text-gray-100 mb-3 flex items-center gap-2">
-            🔥 <span>Trending săptămâna aceasta</span>
-          </h2>
-          <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
+        <div className="max-w-4xl mx-auto px-4 md:px-8 mt-6">
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="text-sm font-semibold text-gray-900 dark:text-white flex items-center gap-1.5">
+              <TrendingUp size={15} strokeWidth={2} />
+              Trending
+            </h2>
+          </div>
+          <div className="flex gap-3 overflow-x-auto pb-1 -mx-4 px-4 md:mx-0 md:px-0">
             {trending.map(r => {
               const sc = STATUS_CONFIG[r.status] || STATUS_CONFIG.raportat
               return (
                 <button
                   key={r.id}
                   onClick={() => navigate(`/raport/${r.id}`)}
-                  className="flex-shrink-0 w-44 bg-white dark:bg-gray-800 rounded-2xl overflow-hidden shadow-sm border border-gray-100 dark:border-gray-700 text-left hover:shadow-md transition-shadow"
+                  className="flex-shrink-0 w-40 md:w-48 bg-white dark:bg-gray-800 rounded-xl overflow-hidden border border-gray-200 dark:border-gray-700 text-left hover:border-gray-300 dark:hover:border-gray-600 transition-colors"
                 >
                   {r.image_url ? (
-                    <img src={r.image_url} alt={r.title} className="w-full h-24 object-cover" />
+                    <img src={r.image_url} alt="" className="w-full h-24 object-cover" />
                   ) : (
-                    <div className="w-full h-24 bg-gradient-to-br from-blue-100 to-indigo-100 dark:from-blue-900/40 dark:to-indigo-900/40 flex items-center justify-center text-3xl">
-                      🏙️
+                    <div className="w-full h-24 bg-gray-100 dark:bg-gray-700 flex items-center justify-center">
+                      <MapPin size={20} className="text-gray-300 dark:text-gray-500" />
                     </div>
                   )}
                   <div className="p-3">
-                    <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${sc.bg}`}>{sc.label}</span>
-                    <p className="text-xs font-semibold text-gray-800 dark:text-gray-100 mt-1 line-clamp-2 leading-tight">{r.title}</p>
-                    <p className="text-xs text-gray-400 mt-1">👍 {r.votes_count || 0} voturi</p>
+                    <span className={`text-xs px-2 py-0.5 rounded-md font-medium ${sc.bg}`}>{sc.label}</span>
+                    <p className="text-xs font-medium text-gray-800 dark:text-gray-100 mt-1.5 line-clamp-2 leading-snug">{r.title}</p>
+                    <p className="text-xs text-gray-400 mt-1.5 flex items-center gap-1">
+                      <ChevronUp size={12} /> {r.votes_count || 0}
+                    </p>
                   </div>
                 </button>
               )
@@ -236,38 +221,38 @@ export default function Home() {
         </div>
       )}
 
-      {/* ── FEED SECTION ────────────────────────────────────────── */}
-      <div className="max-w-4xl mx-auto px-4 mt-8">
+      {/* Feed */}
+      <div className="max-w-4xl mx-auto px-4 md:px-8 mt-6">
         {/* Tabs */}
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-extrabold text-gray-900 dark:text-white">Feed probleme oraș</h2>
-          <div className="flex bg-gray-100 dark:bg-gray-800 rounded-full p-1 gap-1">
+          <h2 className="text-sm font-semibold text-gray-900 dark:text-white">Rapoarte</h2>
+          <div className="flex bg-gray-100 dark:bg-gray-800 rounded-lg p-0.5">
             {['recente', 'populare'].map(t => (
               <button
                 key={t}
                 onClick={() => setTab(t)}
-                className={`px-4 py-1.5 rounded-full text-sm font-semibold transition-all capitalize ${
+                className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all capitalize ${
                   tab === t
-                    ? 'bg-white dark:bg-gray-700 text-blue-600 dark:text-blue-400 shadow-sm'
-                    : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
+                    ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm'
+                    : 'text-gray-500 dark:text-gray-400'
                 }`}
               >
-                {t === 'recente' ? '🕒 Recente' : '🔝 Populare'}
+                {t === 'recente' ? 'Recente' : 'Populare'}
               </button>
             ))}
           </div>
         </div>
 
         {/* Category chips */}
-        <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide mb-5">
+        <div className="flex gap-2 overflow-x-auto pb-3 -mx-4 px-4 md:mx-0 md:px-0 mb-2">
           {CATEGORIES.map(cat => (
             <button
               key={cat}
               onClick={() => setCategory(cat)}
-              className={`flex-shrink-0 px-4 py-1.5 rounded-full text-sm font-semibold border transition-all ${
+              className={`flex-shrink-0 px-3.5 py-1.5 rounded-lg text-xs font-medium border transition-colors ${
                 activeCategory === cat
                   ? 'bg-gray-900 dark:bg-white text-white dark:text-gray-900 border-gray-900 dark:border-white'
-                  : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-gray-700 hover:border-gray-400'
+                  : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-gray-700'
               }`}
             >
               {cat}
@@ -277,90 +262,105 @@ export default function Home() {
 
         {/* Report cards */}
         {loading ? (
-          <div className="space-y-4">
+          <div className="space-y-3">
             {[1,2,3].map(i => (
-              <div key={i} className="bg-white dark:bg-gray-800 rounded-2xl p-4 animate-pulse h-32 border border-gray-100 dark:border-gray-700" />
+              <div key={i} className="bg-white dark:bg-gray-800 rounded-xl p-4 animate-pulse border border-gray-200 dark:border-gray-700">
+                <div className="flex gap-3">
+                  <div className="flex-1 space-y-2">
+                    <div className="h-3 bg-gray-100 dark:bg-gray-700 rounded w-20" />
+                    <div className="h-4 bg-gray-100 dark:bg-gray-700 rounded w-3/4" />
+                    <div className="h-3 bg-gray-100 dark:bg-gray-700 rounded w-1/2" />
+                  </div>
+                  <div className="w-20 h-20 bg-gray-100 dark:bg-gray-700 rounded-lg flex-shrink-0" />
+                </div>
+              </div>
             ))}
           </div>
         ) : reports.length === 0 ? (
           <div className="text-center py-16">
-            <div className="text-5xl mb-3">🏙️</div>
-            <p className="text-gray-500 dark:text-gray-400 font-medium">Nicio problemă raportată încă.</p>
+            <div className="w-12 h-12 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center mx-auto mb-3">
+              <FileText size={20} className="text-gray-400" />
+            </div>
+            <p className="text-sm text-gray-500 dark:text-gray-400 font-medium">Nicio problema raportata inca</p>
             <button
               onClick={() => navigate('/raporteaza')}
-              className="mt-4 bg-blue-600 text-white px-6 py-2.5 rounded-full text-sm font-semibold hover:bg-blue-700 transition-colors"
+              className="mt-4 bg-primary-600 text-white h-10 px-5 rounded-xl text-sm font-medium hover:bg-primary-700 transition-colors inline-flex items-center gap-1.5"
             >
-              Fii primul care raportează
+              Fii primul care raporteaza
+              <ArrowRight size={14} />
             </button>
           </div>
         ) : (
-          <div className="space-y-4">
+          <div className="space-y-3">
             {reports.map(report => {
               const sc = STATUS_CONFIG[report.status] || STATUS_CONFIG.raportat
-              const borderColor = CATEGORY_COLORS[report.category] || 'border-blue-400'
               const voted = !!userVotes[report.id]
 
               return (
                 <div
                   key={report.id}
                   onClick={() => navigate(`/raport/${report.id}`)}
-                  className={`bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 border-l-4 ${borderColor} flex gap-0 overflow-hidden cursor-pointer hover:shadow-md transition-shadow active:scale-[0.99]`}
+                  className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden cursor-pointer hover:border-gray-300 dark:hover:border-gray-600 transition-colors active:bg-gray-50 dark:active:bg-gray-750"
                 >
-                  {/* Text side */}
-                  <div className="flex-1 p-4 min-w-0">
-                    <div className="flex items-center gap-2 flex-wrap mb-2">
-                      <span className={`text-xs px-2.5 py-0.5 rounded-full font-semibold ${sc.bg}`}>
-                        {sc.label}
-                      </span>
-                      <span className="text-xs px-2.5 py-0.5 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 font-medium">
-                        {report.category}
-                      </span>
+                  <div className="flex gap-3 p-4">
+                    {/* Content */}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-1.5">
+                        <span className={`text-xs px-2 py-0.5 rounded-md font-medium ${sc.bg}`}>
+                          {sc.label}
+                        </span>
+                        <span className="text-xs text-gray-400 dark:text-gray-500">
+                          {report.category}
+                        </span>
+                      </div>
+
+                      <h3 className="font-semibold text-gray-900 dark:text-white text-sm leading-snug line-clamp-2">
+                        {report.title}
+                      </h3>
+
+                      {report.address && (
+                        <p className="text-xs text-gray-400 dark:text-gray-500 flex items-center gap-1 truncate mt-1">
+                          <MapPin size={11} strokeWidth={2} />
+                          {report.address}
+                        </p>
+                      )}
+
+                      <div className="flex items-center gap-3 mt-2.5">
+                        <button
+                          onClick={(e) => handleVote(e, report.id)}
+                          className={`flex items-center gap-1 text-xs font-medium px-2.5 py-1 rounded-lg transition-colors ${
+                            voted
+                              ? 'bg-primary-50 dark:bg-primary-700/20 text-primary-600 dark:text-primary-100'
+                              : 'bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400'
+                          }`}
+                        >
+                          <ChevronUp size={13} strokeWidth={2.5} />
+                          {report.votes_count || 0}
+                        </button>
+
+                        <span className="text-xs text-gray-400 dark:text-gray-500 flex items-center gap-1">
+                          <MessageSquare size={12} strokeWidth={2} />
+                          {report.comments_count || 0}
+                        </span>
+
+                        <span className="text-xs text-gray-400 dark:text-gray-500 ml-auto flex items-center gap-1">
+                          <Clock size={11} strokeWidth={2} />
+                          {timeAgo(report.created_at)}
+                        </span>
+                      </div>
                     </div>
 
-                    <h3 className="font-bold text-gray-900 dark:text-white text-sm leading-snug line-clamp-2 mb-1">
-                      {report.title}
-                    </h3>
-
-                    {report.address && (
-                      <p className="text-xs text-gray-400 dark:text-gray-500 flex items-center gap-1 truncate mb-2">
-                        <span>📍</span> {report.address}
-                      </p>
+                    {/* Thumbnail */}
+                    {report.image_url && (
+                      <div className="w-20 h-20 md:w-24 md:h-24 rounded-lg overflow-hidden flex-shrink-0 bg-gray-100 dark:bg-gray-700">
+                        <img
+                          src={report.image_url}
+                          alt=""
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
                     )}
-
-                    <div className="flex items-center gap-3 mt-auto">
-                      <button
-                        onClick={(e) => handleVote(e, report.id)}
-                        className={`flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-full transition-all ${
-                          voted
-                            ? 'bg-blue-100 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400'
-                            : 'bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 hover:bg-blue-50 dark:hover:bg-blue-900/30 hover:text-blue-600'
-                        }`}
-                      >
-                        <span>{voted ? '👍' : '👍'}</span>
-                        {report.votes_count || 0}
-                      </button>
-
-                      <span className="text-xs text-gray-400 dark:text-gray-500 flex items-center gap-1">
-                        💬 {report.comments_count || 0}
-                      </span>
-
-                      <span className="text-xs text-gray-400 dark:text-gray-500 ml-auto">
-                        {timeAgo(report.created_at)}
-                      </span>
-                    </div>
                   </div>
-
-                  {/* Image side */}
-                  {report.image_url && (
-                    <div className="w-28 flex-shrink-0">
-                      <img
-                        src={report.image_url}
-                        alt={report.title}
-                        className="w-full h-full object-cover"
-                        style={{ minHeight: '120px' }}
-                      />
-                    </div>
-                  )}
                 </div>
               )
             })}

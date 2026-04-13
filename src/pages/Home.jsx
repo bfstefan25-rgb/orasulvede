@@ -124,7 +124,7 @@ export default function Home() {
     }
   }
 
-  const firstName = profile?.full_name?.split(' ')[0] || user?.email?.split('@')[0] || 'Cetățean'
+  const firstName = profile?.full_name?.split(' ')[0] || user?.user_metadata?.full_name?.split(' ')[0] || user?.user_metadata?.name?.split(' ')[0] || 'Cetățean'
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950 pb-24">

@@ -1,0 +1,7 @@
+git add .
+git commit -m "Logo with transparent background"
+git push
+
+npm run build
+
+npx vercel --prod

@@ -19,13 +19,14 @@ export default function Navbar() {
 
           {/* Logo */}
           <Link to="/acasa" className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-sm">OV</span>
-            </div>
-            <div className="hidden sm:block">
-              <span className="font-bold text-blue-600 text-lg">OrasulVede</span>
-              <p className="text-gray-400 dark:text-gray-500 text-xs leading-none">VEZI. RAPORTEAZĂ. SCHIMBĂ.</p>
-            </div>
+            <img
+              src="/logo.png"
+              alt="OrasulVede logo"
+              className="h-11 w-auto"
+            />
+            <span className="hidden sm:block text-xs font-semibold tracking-widest text-gray-400 dark:text-gray-500 uppercase leading-tight">
+              VEZI. RAPORTEAZĂ.<br />SCHIMBĂ.
+            </span>
           </Link>
 
           {/* Desktop nav links */}
@@ -47,6 +48,7 @@ export default function Navbar() {
               </Link>
             ))}
           </div>
+
         </div>
       </div>
 

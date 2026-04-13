@@ -114,7 +114,7 @@ export default function Profile() {
     setLoading(false)
   }
 
-aasync function saveSettings() {
+async function saveSettings() {
   // Apply dark mode using correct Romanian key names
   if (settings.tema === 'intunecat') {
     document.documentElement.classList.add('dark')

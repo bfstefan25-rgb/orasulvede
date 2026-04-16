@@ -4,7 +4,7 @@ import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 import {
   ArrowLeft, MapPin, Clock, ThumbsUp, MessageCircle,
-  User, Send, AlertCircle
+  User, Send, AlertCircle, Trash2, Pencil, Check, X
 } from 'lucide-react'
 
 const CATEGORY_COLORS = {
@@ -55,6 +55,12 @@ export default function ReportDetail() {
   const [votingLoading, setVotingLoading] = useState(false)
   const [loading, setLoading] = useState(true)
   const [notFound, setNotFound] = useState(false)
+  const [editing, setEditing] = useState(false)
+  const [editTitle, setEditTitle] = useState('')
+  const [editDesc, setEditDesc] = useState('')
+  const [saving, setSaving] = useState(false)
+  const [deleteConfirm, setDeleteConfirm] = useState(false)
+  const [deleting, setDeleting] = useState(false)
 
   useEffect(() => { fetchAll() }, [id, user])
 
@@ -140,6 +146,28 @@ export default function ReportDetail() {
     setSubmittingComment(false)
   }
 
+  async function saveEdit() {
+    if (!editTitle.trim()) return
+    setSaving(true)
+    const { error } = await supabase
+      .from('reports')
+      .update({ title: editTitle.trim(), description: editDesc.trim() })
+      .eq('id', id)
+    if (!error) {
+      setReport(prev => ({ ...prev, title: editTitle.trim(), description: editDesc.trim() }))
+      setEditing(false)
+    }
+    setSaving(false)
+  }
+
+  async function deleteReport() {
+    setDeleting(true)
+    await supabase.from('votes').delete().eq('report_id', id)
+    await supabase.from('comments').delete().eq('report_id', id)
+    await supabase.from('reports').delete().eq('id', id)
+    navigate('/acasa')
+  }
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex items-center justify-center">
@@ -196,8 +224,68 @@ export default function ReportDetail() {
             <span className={`text-xs font-semibold px-3 py-1 rounded-full ${statusInfo.bg} ${statusInfo.text}`}>
               {statusInfo.label}
             </span>
+            {/* Owner actions */}
+            {user?.id === report.user_id && !editing && (
+              <div className="ml-auto flex items-center gap-2">
+                <button
+                  onClick={() => { setEditTitle(report.title); setEditDesc(report.description || ''); setEditing(true) }}
+                  className="flex items-center gap-1.5 text-xs font-medium text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white px-3 py-1 rounded-full border border-gray-200 dark:border-gray-700 hover:border-gray-400 transition-colors"
+                >
+                  <Pencil size={12} /> Editează
+                </button>
+                <button
+                  onClick={() => setDeleteConfirm(true)}
+                  className="flex items-center gap-1.5 text-xs font-medium text-red-500 hover:text-red-700 px-3 py-1 rounded-full border border-red-200 hover:border-red-400 transition-colors"
+                >
+                  <Trash2 size={12} /> Șterge
+                </button>
+              </div>
+            )}
           </div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">{report.title}</h1>
+
+          {/* Delete confirmation */}
+          {deleteConfirm && (
+            <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl p-4 mb-4">
+              <p className="text-sm font-semibold text-red-700 dark:text-red-400 mb-1">Ești sigur că vrei să ștergi acest raport?</p>
+              <p className="text-xs text-red-500 dark:text-red-400 mb-3">Această acțiune este ireversibilă.</p>
+              <div className="flex gap-2">
+                <button onClick={() => setDeleteConfirm(false)} className="flex-1 py-2 rounded-xl border border-gray-200 dark:border-gray-600 text-sm font-medium text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">Anulează</button>
+                <button onClick={deleteReport} disabled={deleting} className="flex-1 py-2 rounded-xl bg-red-600 text-white text-sm font-medium hover:bg-red-700 transition-colors disabled:opacity-60">
+                  {deleting ? 'Se șterge...' : 'Șterge'}
+                </button>
+              </div>
+            </div>
+          )}
+
+          {editing ? (
+            <div className="space-y-3 mb-4">
+              <input
+                type="text"
+                value={editTitle}
+                onChange={e => setEditTitle(e.target.value)}
+                className="w-full h-11 border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white rounded-xl px-4 text-base focus:outline-none focus:ring-2 focus:ring-primary-500"
+                placeholder="Titlu"
+              />
+              <textarea
+                value={editDesc}
+                onChange={e => setEditDesc(e.target.value)}
+                rows={3}
+                className="w-full border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 resize-none"
+                placeholder="Descriere"
+              />
+              <div className="flex gap-2">
+                <button onClick={() => setEditing(false)} className="flex items-center gap-1.5 px-4 py-2 rounded-xl border border-gray-200 dark:border-gray-600 text-sm font-medium text-gray-600 dark:text-gray-400 hover:bg-gray-50 transition-colors">
+                  <X size={14} /> Anulează
+                </button>
+                <button onClick={saveEdit} disabled={saving || !editTitle.trim()} className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-primary-600 text-white text-sm font-medium hover:bg-primary-700 transition-colors disabled:opacity-60">
+                  <Check size={14} /> {saving ? 'Se salvează...' : 'Salvează'}
+                </button>
+              </div>
+            </div>
+          ) : (
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">{report.title}</h1>
+          )}
+
           <div className="flex flex-wrap items-center gap-4 text-sm text-gray-400 dark:text-gray-500">
             {report.address && (
               <span className="flex items-center gap-1">
@@ -213,7 +301,7 @@ export default function ReportDetail() {
         </div>
 
         {/* Description */}
-        {report.description && (
+        {!editing && report.description && (
           <div className="bg-white dark:bg-gray-800 rounded-2xl p-5 shadow-sm border border-gray-100 dark:border-gray-700 mb-4">
             <h3 className="font-semibold text-gray-900 dark:text-white mb-2 text-sm">Descriere</h3>
             <p className="text-gray-600 dark:text-gray-400 leading-relaxed">{report.description}</p>

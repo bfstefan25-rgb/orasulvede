@@ -2,7 +2,9 @@ import { useState, useEffect, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
-import { ChevronUp, MessageSquare, MapPin, Clock, TrendingUp, FileText, Wrench, CheckCircle2, Plus, ArrowRight } from 'lucide-react'
+import { ChevronUp, MessageSquare, MapPin, Clock, TrendingUp, FileText, Wrench, CheckCircle2, Plus, ArrowRight, Search, X } from 'lucide-react'
+
+const PAGE_SIZE = 10
 
 const CATEGORIES = ['Toate', 'Infrastructură', 'Iluminat', 'Trafic', 'Trotuare', 'Parcuri', 'Gunoi', 'Animale', 'Alte pericole']
 
@@ -35,6 +37,17 @@ export default function Home() {
   const [profile, setProfile]         = useState(null)
   const [userVotes, setUserVotes]     = useState({})
   const [trending, setTrending]       = useState([])
+  const [searchInput, setSearchInput] = useState('')
+  const [search, setSearch]           = useState('')
+  const [page, setPage]               = useState(0)
+  const [hasMore, setHasMore]         = useState(false)
+  const [loadingMore, setLoadingMore] = useState(false)
+
+  // Debounce search input
+  useEffect(() => {
+    const t = setTimeout(() => setSearch(searchInput), 400)
+    return () => clearTimeout(t)
+  }, [searchInput])
 
   useEffect(() => {
     if (!user) return
@@ -67,21 +80,46 @@ export default function Home() {
 
   const fetchReports = useCallback(async () => {
     setLoading(true)
+    setPage(0)
     let query = supabase
       .from('reports')
       .select('id, title, description, category, status, address, latitude, longitude, created_at, votes_count, comments_count, image_url, user_id')
 
     if (activeCategory !== 'Toate') query = query.eq('category', activeCategory)
+    if (search.trim()) query = query.ilike('title', `%${search.trim()}%`)
     if (tab === 'recente')   query = query.order('created_at', { ascending: false })
     if (tab === 'populare')  query = query.order('votes_count', { ascending: false })
 
-    query = query.limit(20)
+    query = query.range(0, PAGE_SIZE - 1)
     const { data, error } = await query
-    if (!error && data) setReports(data)
+    if (!error && data) {
+      setReports(data)
+      setHasMore(data.length === PAGE_SIZE)
+    }
     setLoading(false)
-  }, [tab, activeCategory])
+  }, [tab, activeCategory, search])
 
   useEffect(() => { fetchReports() }, [fetchReports])
+
+  async function loadMore() {
+    setLoadingMore(true)
+    const nextPage = page + 1
+    let query = supabase
+      .from('reports')
+      .select('id, title, description, category, status, address, latitude, longitude, created_at, votes_count, comments_count, image_url, user_id')
+    if (activeCategory !== 'Toate') query = query.eq('category', activeCategory)
+    if (search.trim()) query = query.ilike('title', `%${search.trim()}%`)
+    if (tab === 'recente')   query = query.order('created_at', { ascending: false })
+    if (tab === 'populare')  query = query.order('votes_count', { ascending: false })
+    query = query.range(nextPage * PAGE_SIZE, (nextPage + 1) * PAGE_SIZE - 1)
+    const { data, error } = await query
+    if (!error && data) {
+      setReports(prev => [...prev, ...data])
+      setHasMore(data.length === PAGE_SIZE)
+      setPage(nextPage)
+    }
+    setLoadingMore(false)
+  }
 
   useEffect(() => {
     const week = new Date(Date.now() - 7 * 86400 * 1000).toISOString()
@@ -243,6 +281,23 @@ export default function Home() {
           </div>
         </div>
 
+        {/* Search bar */}
+        <div className="relative mb-3">
+          <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+          <input
+            type="text"
+            value={searchInput}
+            onChange={e => setSearchInput(e.target.value)}
+            placeholder="Caută după titlu..."
+            className="w-full h-11 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl pl-9 pr-9 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent text-gray-900 dark:text-white placeholder:text-gray-400"
+          />
+          {searchInput && (
+            <button onClick={() => setSearchInput('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+              <X size={15} />
+            </button>
+          )}
+        </div>
+
         {/* Category chips */}
         <div className="flex gap-2 overflow-x-auto pb-3 -mx-4 px-4 md:mx-0 md:px-0 mb-2">
           {CATEGORIES.map(cat => (
@@ -291,6 +346,7 @@ export default function Home() {
             </button>
           </div>
         ) : (
+          <>
           <div className="space-y-3">
             {reports.map(report => {
               const sc = STATUS_CONFIG[report.status] || STATUS_CONFIG.raportat
@@ -365,6 +421,19 @@ export default function Home() {
               )
             })}
           </div>
+          {hasMore && (
+            <button
+              onClick={loadMore}
+              disabled={loadingMore}
+              className="w-full mt-4 h-11 border border-gray-200 dark:border-gray-700 rounded-xl text-sm font-medium text-gray-600 dark:text-gray-300 hover:bg-white dark:hover:bg-gray-800 transition-colors disabled:opacity-60 flex items-center justify-center gap-2"
+            >
+              {loadingMore
+                ? <><div className="w-4 h-4 border-2 border-gray-400 border-t-transparent rounded-full animate-spin" /> Se încarcă...</>
+                : 'Încarcă mai multe'
+              }
+            </button>
+          )}
+          </>
         )}
       </div>
     </div>

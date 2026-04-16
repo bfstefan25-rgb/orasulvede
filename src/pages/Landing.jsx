@@ -1,11 +1,34 @@
 import { useNavigate } from "react-router-dom";
 import { useEffect, useRef, useState } from "react";
 import { Menu, X, Eye, MapPin, Send, Bell, ArrowRight, ChevronUp, Users, CheckCircle2, Clock, Shield, Megaphone, BarChart3 } from "lucide-react";
+import { supabase } from "../lib/supabase";
 
 export default function Landing() {
   const navigate = useNavigate();
   const observerRef = useRef(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [liveStats, setLiveStats] = useState({ total: 0, resolved: 0, inProgress: 0, users: 0 });
+
+  useEffect(() => {
+    async function fetchStats() {
+      const [total, resolved, inProgress, users] = await Promise.all([
+        supabase.from('reports').select('id', { count: 'exact', head: true }),
+        supabase.from('reports').select('id', { count: 'exact', head: true }).eq('status', 'rezolvat'),
+        supabase.from('reports').select('id', { count: 'exact', head: true }).in('status', ['in_verificare', 'in_lucru']),
+        supabase.from('profiles').select('id', { count: 'exact', head: true }),
+      ])
+      const t = total.count || 0
+      const r = resolved.count || 0
+      setLiveStats({
+        total: t,
+        resolved: r,
+        inProgress: inProgress.count || 0,
+        users: users.count || 0,
+        rate: t > 0 ? Math.round((r / t) * 100) : 0,
+      })
+    }
+    fetchStats()
+  }, []);
 
   useEffect(() => {
     observerRef.current = new IntersectionObserver(
@@ -63,14 +86,13 @@ export default function Landing() {
       {/* ── Nav ────────────────────────────────────────────────────── */}
       <nav className="fixed top-0 left-0 right-0 z-[100] bg-white/95 backdrop-blur-xl border-b border-gray-200/60">
         <div className="flex items-center justify-between h-16 px-4 md:px-12 max-w-6xl mx-auto">
-          <div className="flex items-center gap-2 cursor-pointer overflow-hidden h-16" onClick={() => navigate("/")}>
+          <div className="flex items-center cursor-pointer overflow-hidden h-16" onClick={() => navigate("/")}>
             <img
               src="/ovlogo.png"
               alt="OrasulVede logo"
-              className="h-[86px] w-auto flex-shrink-0"
+              className="h-14 w-auto flex-shrink-0"
               style={{ mixBlendMode: 'multiply' }}
             />
-            <span className="font-bold text-base text-gray-900 whitespace-nowrap">Orașul Vede</span>
           </div>
 
           <div className="hidden md:flex items-center gap-8">
@@ -107,6 +129,9 @@ export default function Landing() {
       {/* ── Hero ───────────────────────────────────────────────────── */}
       <section className="pt-28 pb-16 md:pt-36 md:pb-24 px-4 md:px-8">
         <div className="max-w-2xl mx-auto text-center">
+          <p className="scroll-animate text-[10px] font-semibold tracking-widest text-gray-400 uppercase mb-4">
+            VEZI. RAPORTEAZĂ. SCHIMBĂ
+          </p>
           <div className="scroll-animate inline-flex items-center gap-2 bg-primary-50 text-primary-600 rounded-full px-3.5 py-1.5 text-xs font-semibold tracking-wide uppercase mb-6">
             <span className="w-1.5 h-1.5 rounded-full bg-primary-500" />
             Platformă civică
@@ -130,9 +155,9 @@ export default function Landing() {
           </div>
           <div className="flex justify-center gap-8 md:gap-12">
             {[
-              ["1,247", "Probleme raportate"],
-              ["3,500+", "Utilizatori activi"],
-              ["69%", "Rata de rezolvare"],
+              [liveStats.total.toLocaleString('ro-RO'), "Probleme raportate"],
+              [liveStats.users.toLocaleString('ro-RO'), "Utilizatori activi"],
+              [`${liveStats.rate ?? 0}%`, "Rata de rezolvare"],
             ].map(([val, label]) => (
               <div key={label} className="text-center">
                 <div className="text-xl md:text-2xl font-extrabold text-gray-900">{val}</div>
@@ -363,14 +388,14 @@ export default function Landing() {
           <h2 className="scroll-animate delay-1 text-2xl md:text-4xl font-extrabold tracking-tight mb-10 md:mb-14">Impactul comunității în cifre</h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-5">
             {[
-              [BarChart3, "1,247", "Total probleme"],
-              [CheckCircle2, "856", "Rezolvate"],
-              [Clock, "234", "În lucru"],
-              [Users, "69%", "Rata rezolvare"],
+              [BarChart3, liveStats.total.toLocaleString('ro-RO'), "Total probleme"],
+              [CheckCircle2, liveStats.resolved.toLocaleString('ro-RO'), "Rezolvate"],
+              [Clock, liveStats.inProgress.toLocaleString('ro-RO'), "În lucru"],
+              [Users, `${liveStats.rate ?? 0}%`, "Rata rezolvare"],
             ].map(([Icon, val, label]) => (
               <div key={label} className="scroll-animate bg-gray-50 rounded-xl p-5 md:p-8">
                 <Icon size={18} className="text-gray-400 mx-auto mb-3" strokeWidth={1.8} />
-                <div className="text-2xl md:text-3xl font-extrabold text-gray-900 count-num" data-target={val}>{val}</div>
+                <div className="text-2xl md:text-3xl font-extrabold text-gray-900">{val}</div>
                 <div className="text-xs text-gray-400 mt-1">{label}</div>
               </div>
             ))}

@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { Search } from 'lucide-react'
 import { supabase } from '../lib/supabase'
+import { MarkerClusterer } from '@googlemaps/markerclusterer'
 
 const CATEGORY_CONFIG = {
   'Infrastructură': { color: '#f97316' },
@@ -47,6 +48,7 @@ export default function Map() {
   const mapRef = useRef(null)
   const mapInstance = useRef(null)
   const markersRef = useRef([])
+  const clustererRef = useRef(null)
   const infoWindowRef = useRef(null)
 
   const [reports, setReports] = useState([])
@@ -106,6 +108,7 @@ export default function Map() {
   useEffect(() => {
     if (!mapReady || !mapInstance.current) return
 
+    clustererRef.current?.clearMarkers()
     markersRef.current.forEach(m => m.setMap(null))
     markersRef.current = []
 
@@ -148,6 +151,11 @@ export default function Map() {
       })
 
       markersRef.current.push(marker)
+    })
+
+    clustererRef.current = new MarkerClusterer({
+      map: mapInstance.current,
+      markers: markersRef.current,
     })
   }, [mapReady, activeCategory, search, reports])
 

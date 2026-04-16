@@ -4,7 +4,7 @@ import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 import {
   ArrowLeft, MapPin, Clock, ThumbsUp, MessageCircle,
-  User, Send, AlertCircle, Trash2, Pencil, Check, X
+  User, Send, AlertCircle, Trash2, Pencil, Check, X, Share2
 } from 'lucide-react'
 
 const CATEGORY_COLORS = {
@@ -61,6 +61,7 @@ export default function ReportDetail() {
   const [saving, setSaving] = useState(false)
   const [deleteConfirm, setDeleteConfirm] = useState(false)
   const [deleting, setDeleting] = useState(false)
+  const [copied, setCopied] = useState(false)
 
   useEffect(() => { fetchAll() }, [id, user])
 
@@ -383,7 +384,7 @@ export default function ReportDetail() {
           </div>
         )}
 
-        {/* Vote row */}
+        {/* Vote + Share row */}
         <div className="flex items-center gap-3 mb-6">
           <button
             onClick={handleVote}
@@ -401,6 +402,21 @@ export default function ReportDetail() {
             <MessageCircle size={16} />
             {comments.length} {comments.length === 1 ? 'comentariu' : 'comentarii'}
           </span>
+          <button
+            onClick={() => {
+              navigator.clipboard.writeText(window.location.href)
+              setCopied(true)
+              setTimeout(() => setCopied(false), 2000)
+            }}
+            className={`ml-auto flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium border transition-all ${
+              copied
+                ? 'bg-green-50 dark:bg-green-900/20 border-green-300 text-green-600 dark:text-green-400'
+                : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 hover:border-blue-400'
+            }`}
+          >
+            {copied ? <Check size={15} /> : <Share2 size={15} />}
+            {copied ? 'Copiat!' : 'Distribuie'}
+          </button>
         </div>
 
         {/* Comments */}

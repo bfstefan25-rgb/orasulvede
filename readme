@@ -1,5 +1,5 @@
 git add .
-git commit -m "Logo with transparent background"
+git commit 
 git push
 
 npm run build

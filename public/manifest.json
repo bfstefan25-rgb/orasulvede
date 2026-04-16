@@ -1,0 +1,25 @@
+{
+  "name": "Orașul Vede",
+  "short_name": "OrasulVede",
+  "description": "Raportează problemele din orașul tău. Vezi. Raportează. Schimbă.",
+  "start_url": "/acasa",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#ffffff",
+  "theme_color": "#2563eb",
+  "lang": "ro",
+  "icons": [
+    {
+      "src": "/ovlogo.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/ovlogo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

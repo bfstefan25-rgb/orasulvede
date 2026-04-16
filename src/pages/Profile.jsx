@@ -1,11 +1,11 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { supabase } from '../lib/supabase'
 import { Link, useNavigate } from 'react-router-dom'
 import {
   MapPin, CheckCircle, Trophy, TrendingUp,
   LogOut, Clock, ChevronRight, User, Settings, X, Save, Trash2,
   Sun, Moon, Monitor, Award, Zap, Shield, Newspaper, Star, Crown,
-  Eye, Compass, Target, Flag, Lock, ChevronDown, ChevronUp
+  Eye, Compass, Target, Flag, Lock, ChevronDown, ChevronUp, Camera
 } from 'lucide-react'
 import { useSettings } from '../context/SettingsContext'
 
@@ -97,6 +97,9 @@ export default function Profile() {
   const [saveMsg,  setSaveMsg]    = useState('')
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
   const [showAllLevels,     setShowAllLevels]     = useState(false)
+  const [avatarUrl,         setAvatarUrl]         = useState(null)
+  const [uploading,         setUploading]         = useState(false)
+  const fileInputRef = useRef(null)
 
   useEffect(() => { fetchAll() }, [])
 
@@ -107,6 +110,7 @@ export default function Profile() {
     if (!user) { setLoading(false); return }
     const { data: prof } = await supabase.from('profiles').select('*').eq('id', user.id).single()
     setProfile(prof)
+    setAvatarUrl(prof?.avatar_url || user?.user_metadata?.avatar_url || null)
     if (prof?.settings) setSettings({ ...DEFAULT_SETTINGS, ...prof.settings })
     const { data: reports } = await supabase.from('reports').select('id,title,category,status,created_at,image_url,address').eq('user_id', user.id).order('created_at', { ascending: false })
     setMyReports(reports || [])
@@ -116,6 +120,22 @@ export default function Profile() {
     }
     setLoading(false)
   }
+
+async function handleAvatarUpload(e) {
+  const file = e.target.files?.[0]
+  if (!file || !authUser) return
+  const ext = file.name.split('.').pop()
+  const path = `${authUser.id}.${ext}`
+  setUploading(true)
+  const { error } = await supabase.storage.from('avatars').upload(path, file, { upsert: true })
+  if (!error) {
+    const { data: { publicUrl } } = supabase.storage.from('avatars').getPublicUrl(path)
+    await supabase.from('profiles').update({ avatar_url: publicUrl }).eq('id', authUser.id)
+    setAvatarUrl(publicUrl)
+  }
+  setUploading(false)
+  e.target.value = ''
+}
 
 async function saveSettings() {
   // Apply dark mode using correct Romanian key names
@@ -352,12 +372,29 @@ async function saveSettings() {
               {/* Avatar + Info */}
               <div className="flex flex-col md:flex-row md:items-end gap-3 md:gap-4">
                 <div className="relative -mt-12 md:-mt-14 flex-shrink-0">
-                  <div className="w-20 h-20 md:w-24 md:h-24 rounded-full overflow-hidden border-4 border-white dark:border-gray-800 bg-primary-50 dark:bg-blue-900/40 flex items-center justify-center">
-                    {authUser.user_metadata?.avatar_url
-                      ? <img src={authUser.user_metadata.avatar_url} alt="" className="w-full h-full object-cover" />
+                  <div
+                    className="w-20 h-20 md:w-24 md:h-24 rounded-full overflow-hidden border-4 border-white dark:border-gray-800 bg-primary-50 dark:bg-blue-900/40 flex items-center justify-center cursor-pointer group/avatar relative"
+                    onClick={() => fileInputRef.current?.click()}
+                    title="Schimbă fotografia de profil"
+                  >
+                    {avatarUrl
+                      ? <img src={avatarUrl} alt="" className="w-full h-full object-cover" />
                       : <span className="text-2xl font-bold text-primary-600 dark:text-primary-400">{initials}</span>
                     }
+                    <div className="absolute inset-0 bg-black/40 rounded-full flex items-center justify-center opacity-0 group-hover/avatar:opacity-100 transition-opacity">
+                      {uploading
+                        ? <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                        : <Camera size={20} className="text-white" />
+                      }
+                    </div>
                   </div>
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={handleAvatarUpload}
+                  />
                   <div className="absolute -bottom-1 -right-1 w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold border-2 border-white dark:border-gray-800 bg-primary-600 text-white">
                     {levelInfo.level}
                   </div>

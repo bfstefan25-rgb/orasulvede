@@ -50,8 +50,8 @@ export default function Register() {
 
         {/* Logo */}
         <div className="text-center mb-8">
-          <div className="w-16 h-16 bg-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
-            <span className="text-white font-bold text-xl">OV</span>
+          <div className="h-16 overflow-hidden mx-auto mb-4" style={{ width: '46px' }}>
+            <img src="/ovlogo.png" alt="OrasulVede logo" className="h-16 w-auto max-w-none" style={{ mixBlendMode: 'multiply' }} />
           </div>
           <h1 className="text-2xl font-bold text-gray-900">Creează cont</h1>
           <p className="text-gray-400 mt-1">Alătură-te comunității OrasulVede</p>

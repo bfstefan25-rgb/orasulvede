@@ -210,9 +210,19 @@ export default function Leaderboard() {
                   const isMe = user?.id === u.id
                   const isTop3 = i < 3
                   return (
-                    <div key={u.id} className={`flex items-center gap-3 md:gap-4 p-3 md:p-4 rounded-2xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 ${isMe ? 'ring-2 ring-primary-500' : ''}`}>
+                    <div key={u.id} className={`flex items-center gap-3 md:gap-4 p-3 md:p-4 rounded-2xl border ${
+                      i === 0 ? 'bg-amber-100 dark:bg-amber-900/30 border-amber-300 dark:border-amber-600' :
+                      i === 1 ? 'bg-slate-200 dark:bg-slate-700/60 border-slate-300 dark:border-slate-500' :
+                      i === 2 ? 'bg-orange-100 dark:bg-orange-900/30 border-orange-300 dark:border-orange-600' :
+                      'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700'
+                    } ${isMe ? 'ring-2 ring-primary-500' : ''}`}>
                       {/* Rank */}
-                      <div className={`w-6 flex-shrink-0 text-center font-bold text-sm ${isTop3 ? 'text-gray-900 dark:text-white' : 'text-gray-400 dark:text-gray-500'}`}>
+                      <div className={`w-6 flex-shrink-0 text-center font-bold text-sm ${
+                        i === 0 ? 'text-amber-600 dark:text-amber-400' :
+                        i === 1 ? 'text-slate-500 dark:text-slate-300' :
+                        i === 2 ? 'text-orange-500 dark:text-orange-400' :
+                        'text-gray-400 dark:text-gray-500'
+                      }`}>
                         {i + 1}
                       </div>
                       {/* Avatar */}

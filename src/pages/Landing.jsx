@@ -457,31 +457,46 @@ export default function Landing() {
         <div className="max-w-4xl mx-auto">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-10">
             <div className="col-span-2 md:col-span-1">
-              <div className="flex items-center overflow-hidden h-10 mb-3">
+              <div className="flex items-center mb-3">
                 <img
                   src="/ovlogo.png"
                   alt="OrasulVede logo"
-                  className="h-[52px] w-auto brightness-0 invert"
+                  className="h-12 w-auto"
+                  style={{ mixBlendMode: 'screen' }}
                 />
               </div>
               <p className="text-sm leading-relaxed">Platformă de implicare civică pentru un oraș mai bun.</p>
             </div>
             {[
-              ["Platformă", ["Funcționalități", "Hartă", "Clasamente"]],
-              ["Resurse", ["Cum funcționează", "FAQ", "Contact"]],
-              ["Legal", ["Termeni și condiții", "Confidențialitate", "Cookies"]],
+              ["Platformă", [
+                { label: "Funcționalități", action: () => document.getElementById('functionalitati')?.scrollIntoView({ behavior: 'smooth' }) },
+                { label: "Hartă",           action: () => navigate('/harta') },
+                { label: "Clasamente",      action: () => navigate('/clasament') },
+              ]],
+              ["Resurse", [
+                { label: "Cum funcționează", action: () => document.getElementById('cum-functioneaza')?.scrollIntoView({ behavior: 'smooth' }) },
+                { label: "FAQ",              action: () => document.getElementById('despre')?.scrollIntoView({ behavior: 'smooth' }) },
+                { label: "Contact",          href: "mailto:contact@orasulvede.ro" },
+              ]],
+              ["Legal", [
+                { label: "Termeni și condiții", action: () => navigate('/legal/termeni') },
+                { label: "Confidențialitate",   action: () => navigate('/legal/confidentialitate') },
+                { label: "Cookies",             action: () => navigate('/legal/cookies') },
+              ]],
             ].map(([title, links]) => (
               <div key={title}>
                 <div className="font-semibold text-white text-xs uppercase tracking-wider mb-3">{title}</div>
                 {links.map(l => (
-                  <div key={l} className="mb-2 text-sm cursor-pointer hover:text-gray-300 transition-colors">{l}</div>
+                  l.href
+                    ? <a key={l.label} href={l.href} className="block mb-2 text-sm hover:text-white transition-colors">{l.label}</a>
+                    : <button key={l.label} onClick={l.action} className="block mb-2 text-sm hover:text-white transition-colors text-left w-full">{l.label}</button>
                 ))}
               </div>
             ))}
           </div>
           <div className="border-t border-gray-800 pt-6 flex flex-col sm:flex-row justify-between items-center gap-3 text-xs text-gray-500">
             <span>2026 Orasul Vede. Toate drepturile rezervate.</span>
-            <span>Făcut pentru comunitate</span>
+            <span className="flex items-center gap-1">Făcut cu <span className="text-red-500">♥</span> pentru comunitate</span>
           </div>
         </div>
       </footer>

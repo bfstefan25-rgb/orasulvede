@@ -11,6 +11,7 @@ import Profile from './pages/Profile'
 import Login from './pages/Login'
 import Register from './pages/Register'
 import Admin from './pages/Admin'
+import Legal from './pages/Legal'
 import Navbar from './components/Navbar'
 
 function App() {
@@ -28,6 +29,7 @@ function App() {
           <Route path="/clasament" element={<><Navbar /><Leaderboard /></>} />
           <Route path="/profil" element={<><Navbar /><Profile /></>} />
           <Route path="/admin" element={<Admin />} />
+          <Route path="/legal/:page" element={<Legal />} />
         </Routes>
       </SettingsProvider>
     </AuthProvider>

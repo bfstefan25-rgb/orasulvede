@@ -8,6 +8,17 @@ const PAGE_SIZE = 10
 
 const CATEGORIES = ['Toate', 'Infrastructură', 'Iluminat', 'Trafic', 'Trotuare', 'Parcuri', 'Gunoi', 'Animale', 'Alte pericole']
 
+const CATEGORY_BORDER = {
+  'Infrastructură': 'border-l-orange-400',
+  'Iluminat':       'border-l-yellow-400',
+  'Trafic':         'border-l-red-400',
+  'Trotuare':       'border-l-purple-400',
+  'Parcuri':        'border-l-green-400',
+  'Gunoi':          'border-l-gray-400',
+  'Animale':        'border-l-blue-400',
+  'Alte pericole':  'border-l-rose-400',
+}
+
 const STATUS_CONFIG = {
   raportat:      { label: 'Raportat',      bg: 'bg-primary-50 text-primary-600 dark:bg-primary-700/20 dark:text-primary-100' },
   in_verificare: { label: 'În verificare', bg: 'bg-amber-50 text-amber-700 dark:bg-amber-900/20 dark:text-amber-200' },
@@ -164,37 +175,87 @@ export default function Home() {
 
   const firstName = profile?.full_name?.split(' ')[0] || user?.user_metadata?.full_name?.split(' ')[0] || user?.user_metadata?.name?.split(' ')[0] || 'Cetățean'
 
+  const LEVELS = [
+    { level:1, name:'Observator', min:0 }, { level:2, name:'Cetățean Activ', min:5 },
+    { level:3, name:'Voluntar Civic', min:15 }, { level:4, name:'Reporter Urban', min:30 },
+    { level:5, name:'Gardian Comunitar', min:50 }, { level:6, name:'Vocea Cartierului', min:75 },
+    { level:7, name:'Erou Local', min:110 }, { level:8, name:'Campion Civic', min:150 },
+    { level:9, name:'Ambasador Urban', min:200 }, { level:10, name:'Legenda Orașului', min:300 },
+  ]
+  const rc = profile?.reports_count || 0
+  let curLevel = LEVELS[0]
+  for (const l of LEVELS) { if (rc >= l.min) curLevel = l }
+  const nextLevel = LEVELS.find(l => l.level === curLevel.level + 1)
+  const levelProgress = nextLevel ? Math.round(((rc - curLevel.min) / (nextLevel.min - curLevel.min)) * 100) : 100
+
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950 pb-24">
 
-      {/* Header */}
-      <div className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 px-4 pt-6 pb-5 md:px-8">
-        <div className="max-w-4xl mx-auto">
+      {/* Hero header */}
+      <div className="relative overflow-hidden" style={{ background: 'linear-gradient(160deg, #1e3a5f 0%, #1d4ed8 55%, #60a5fa 100%)' }}>
+        <svg viewBox="0 0 800 80" preserveAspectRatio="xMidYMax meet" className="absolute bottom-0 left-0 w-full pointer-events-none" xmlns="http://www.w3.org/2000/svg">
+          <g fill="rgba(255,255,255,0.06)">
+            <rect x="0" y="40" width="50" height="40"/><rect x="8" y="25" width="18" height="15"/>
+            <rect x="60" y="30" width="45" height="50"/><rect x="72" y="18" width="12" height="12"/>
+            <rect x="115" y="38" width="38" height="42"/><rect x="163" y="22" width="50" height="58"/>
+            <rect x="172" y="10" width="10" height="12"/><rect x="223" y="42" width="32" height="38"/>
+            <rect x="265" y="28" width="55" height="52"/><rect x="330" y="35" width="42" height="45"/>
+            <rect x="382" y="25" width="50" height="55"/><rect x="392" y="12" width="11" height="13"/>
+            <rect x="442" y="40" width="36" height="40"/><rect x="488" y="22" width="55" height="58"/>
+            <rect x="498" y="10" width="10" height="12"/><rect x="553" y="33" width="44" height="47"/>
+            <rect x="607" y="38" width="36" height="42"/><rect x="653" y="20" width="50" height="60"/>
+            <rect x="663" y="8" width="11" height="12"/><rect x="713" y="42" width="42" height="38"/>
+            <rect x="765" y="35" width="35" height="45"/>
+          </g>
+          <g fill="rgba(255,255,255,0.12)">
+            <rect x="0" y="50" width="40" height="30"/><rect x="45" y="42" width="30" height="38"/>
+            <rect x="50" y="30" width="9" height="12"/><rect x="85" y="48" width="45" height="32"/>
+            <rect x="98" y="35" width="10" height="13"/><rect x="140" y="40" width="36" height="40"/>
+            <rect x="186" y="32" width="50" height="48"/><rect x="196" y="20" width="9" height="12"/>
+            <rect x="246" y="46" width="28" height="34"/><rect x="284" y="36" width="46" height="44"/>
+            <rect x="340" y="42" width="36" height="38"/><rect x="386" y="34" width="46" height="46"/>
+            <rect x="396" y="22" width="10" height="12"/><rect x="442" y="48" width="32" height="32"/>
+            <rect x="484" y="30" width="50" height="50"/><rect x="494" y="18" width="10" height="12"/>
+            <rect x="544" y="40" width="42" height="40"/><rect x="596" y="44" width="34" height="36"/>
+            <rect x="640" y="32" width="46" height="48"/><rect x="650" y="20" width="10" height="12"/>
+            <rect x="696" y="48" width="44" height="32"/><rect x="750" y="42" width="50" height="38"/>
+          </g>
+        </svg>
+
+        <div className="relative max-w-4xl mx-auto px-4 md:px-8 pt-6 pb-8">
           <div className="flex items-start justify-between gap-4">
             <div>
-              <h1 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-white leading-tight">
-                Salut, {firstName}
+              <p className="text-blue-200 text-xs font-medium uppercase tracking-wider mb-1">Bun venit înapoi</p>
+              <h1 className="text-2xl md:text-3xl font-bold text-white leading-tight">
+                Salut, {firstName} 👋
               </h1>
-              <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
-                Ce se întâmplă în orașul tău
-              </p>
+              <p className="text-blue-200 text-sm mt-1">Ce se întâmplă în orașul tău</p>
             </div>
             {profile && (
-              <div className="flex items-center gap-2 bg-gray-50 dark:bg-gray-800 rounded-xl px-3 py-2 flex-shrink-0">
-                <div className="w-8 h-8 rounded-full bg-primary-600 flex items-center justify-center text-white text-xs font-bold">
-                  {profile.level ?? 1}
-                </div>
-                <div className="text-right">
-                  <p className="text-sm font-semibold text-gray-900 dark:text-white leading-none">{profile.points ?? 0}</p>
-                  <p className="text-xs text-gray-400">puncte</p>
-                </div>
+              <div className="flex-shrink-0 bg-white/10 backdrop-blur-sm border border-white/20 rounded-2xl px-4 py-3 text-right">
+                <p className="text-white font-bold text-lg leading-none">{profile.points ?? 0}</p>
+                <p className="text-blue-200 text-xs mt-0.5">puncte</p>
+                <p className="text-blue-100 text-xs font-medium mt-1">Niv. {curLevel.level} · {curLevel.name}</p>
               </div>
             )}
           </div>
 
+          {/* Level progress bar */}
+          {profile && nextLevel && (
+            <div className="mt-4 mb-1">
+              <div className="flex justify-between text-xs text-blue-200 mb-1">
+                <span>{rc} raportări</span>
+                <span>{nextLevel.min} pentru {nextLevel.name}</span>
+              </div>
+              <div className="h-1.5 bg-white/20 rounded-full overflow-hidden">
+                <div className="h-full bg-white rounded-full transition-all" style={{ width: `${levelProgress}%` }} />
+              </div>
+            </div>
+          )}
+
           <button
             onClick={() => navigate('/raporteaza')}
-            className="mt-4 w-full md:w-auto h-12 bg-primary-600 hover:bg-primary-700 text-white font-semibold px-6 rounded-xl transition-colors text-sm flex items-center justify-center md:justify-start gap-2"
+            className="mt-5 h-12 bg-white text-primary-700 font-bold px-6 rounded-xl text-sm flex items-center gap-2 hover:bg-blue-50 transition-colors shadow-lg w-full md:w-auto justify-center md:justify-start"
           >
             <Plus size={18} strokeWidth={2.5} />
             Raportează o problemă
@@ -206,13 +267,15 @@ export default function Home() {
       <div className="max-w-4xl mx-auto px-4 md:px-8 mt-5">
         <div className="grid grid-cols-4 gap-2 md:gap-3">
           {[
-            { icon: FileText, label: 'Total',    value: stats.total },
-            { icon: Wrench,   label: 'În lucru', value: stats.inLucru },
-            { icon: CheckCircle2, label: 'Rezolvate', value: stats.rezolvate },
-            { icon: Clock,    label: 'Azi',       value: stats.azi },
+            { icon: FileText,    label: 'Total',     value: stats.total,     iconBg: 'bg-blue-50 dark:bg-blue-900/30',   iconColor: 'text-blue-500' },
+            { icon: Wrench,      label: 'În lucru',  value: stats.inLucru,   iconBg: 'bg-orange-50 dark:bg-orange-900/30', iconColor: 'text-orange-500' },
+            { icon: CheckCircle2,label: 'Rezolvate', value: stats.rezolvate, iconBg: 'bg-green-50 dark:bg-green-900/30',  iconColor: 'text-green-500' },
+            { icon: Clock,       label: 'Azi',       value: stats.azi,       iconBg: 'bg-purple-50 dark:bg-purple-900/30', iconColor: 'text-purple-500' },
           ].map(s => (
             <div key={s.label} className="bg-white dark:bg-gray-800 rounded-xl p-3 md:p-4 border border-gray-200 dark:border-gray-700">
-              <s.icon size={16} className="text-gray-400 dark:text-gray-500 mb-2" strokeWidth={1.8} />
+              <div className={`w-8 h-8 ${s.iconBg} rounded-lg flex items-center justify-center mb-2`}>
+                <s.icon size={15} className={s.iconColor} strokeWidth={2} />
+              </div>
               <p className="text-lg md:text-xl font-bold text-gray-900 dark:text-white leading-none">{s.value}</p>
               <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">{s.label}</p>
             </div>
@@ -356,7 +419,7 @@ export default function Home() {
                 <div
                   key={report.id}
                   onClick={() => navigate(`/raport/${report.id}`)}
-                  className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden cursor-pointer hover:border-gray-300 dark:hover:border-gray-600 transition-colors active:bg-gray-50 dark:active:bg-gray-750"
+                  className={`bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 border-l-4 ${CATEGORY_BORDER[report.category] || 'border-l-gray-300'} overflow-hidden cursor-pointer hover:shadow-md transition-all active:bg-gray-50 dark:active:bg-gray-750`}
                 >
                   <div className="flex gap-3 p-4">
                     {/* Content */}
@@ -407,15 +470,12 @@ export default function Home() {
                     </div>
 
                     {/* Thumbnail */}
-                    {report.image_url && (
-                      <div className="w-20 h-20 md:w-24 md:h-24 rounded-lg overflow-hidden flex-shrink-0 bg-gray-100 dark:bg-gray-700">
-                        <img
-                          src={report.image_url}
-                          alt=""
-                          className="w-full h-full object-cover"
-                        />
-                      </div>
-                    )}
+                    <div className="w-20 h-20 md:w-24 md:h-24 rounded-xl overflow-hidden flex-shrink-0 bg-gray-100 dark:bg-gray-700 flex items-center justify-center">
+                      {report.image_url
+                        ? <img src={report.image_url} alt="" className="w-full h-full object-cover" />
+                        : <MapPin size={22} className="text-gray-300 dark:text-gray-500" />
+                      }
+                    </div>
                   </div>
                 </div>
               )

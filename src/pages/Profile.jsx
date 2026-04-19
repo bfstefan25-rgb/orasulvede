@@ -363,7 +363,61 @@ async function saveSettings() {
         {/* Hero header */}
         <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden mb-6">
           {/* Banner */}
-          <div className="h-28 md:h-36 bg-gradient-to-r from-primary-600 via-primary-500 to-indigo-500" />
+          <div className="h-28 md:h-36 relative overflow-hidden" style={{ background: 'linear-gradient(160deg, #1e3a5f 0%, #1d4ed8 50%, #60a5fa 100%)' }}>
+            <svg
+              viewBox="0 0 800 120"
+              preserveAspectRatio="xMidYMax meet"
+              className="absolute bottom-0 left-0 w-full"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <g fill="rgba(255,255,255,0.08)">
+                <rect x="0"   y="70" width="60"  height="50" />
+                <rect x="10"  y="50" width="20"  height="20" />
+                <rect x="70"  y="55" width="50"  height="65" />
+                <rect x="85"  y="40" width="15"  height="15" />
+                <rect x="130" y="60" width="40"  height="60" />
+                <rect x="180" y="45" width="55"  height="75" />
+                <rect x="190" y="30" width="12"  height="15" />
+                <rect x="245" y="65" width="35"  height="55" />
+                <rect x="290" y="50" width="60"  height="70" />
+                <rect x="300" y="35" width="10"  height="15" />
+                <rect x="360" y="58" width="45"  height="62" />
+                <rect x="415" y="48" width="55"  height="72" />
+                <rect x="425" y="33" width="14"  height="15" />
+                <rect x="480" y="62" width="40"  height="58" />
+                <rect x="530" y="44" width="60"  height="76" />
+                <rect x="540" y="28" width="12"  height="16" />
+                <rect x="600" y="55" width="50"  height="65" />
+                <rect x="660" y="60" width="40"  height="60" />
+                <rect x="710" y="42" width="55"  height="78" />
+                <rect x="720" y="28" width="13"  height="14" />
+                <rect x="775" y="65" width="25"  height="55" />
+              </g>
+              <g fill="rgba(255,255,255,0.15)">
+                <rect x="0"   y="80" width="45"  height="40" />
+                <rect x="50"  y="65" width="35"  height="55" />
+                <rect x="57"  y="50" width="10"  height="15" />
+                <rect x="95"  y="72" width="50"  height="48" />
+                <rect x="110" y="55" width="12"  height="17" />
+                <rect x="155" y="60" width="40"  height="60" />
+                <rect x="205" y="50" width="55"  height="70" />
+                <rect x="215" y="35" width="10"  height="15" />
+                <rect x="270" y="68" width="30"  height="52" />
+                <rect x="310" y="55" width="50"  height="65" />
+                <rect x="370" y="62" width="40"  height="58" />
+                <rect x="420" y="52" width="50"  height="68" />
+                <rect x="430" y="37" width="12"  height="15" />
+                <rect x="480" y="70" width="35"  height="50" />
+                <rect x="525" y="48" width="55"  height="72" />
+                <rect x="535" y="32" width="11"  height="16" />
+                <rect x="590" y="60" width="45"  height="60" />
+                <rect x="645" y="65" width="38"  height="55" />
+                <rect x="693" y="50" width="50"  height="70" />
+                <rect x="703" y="35" width="12"  height="15" />
+                <rect x="753" y="72" width="47"  height="48" />
+              </g>
+            </svg>
+          </div>
 
           {/* Content */}
           <div className="px-4 md:px-6 pb-5">

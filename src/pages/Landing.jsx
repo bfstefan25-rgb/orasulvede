@@ -216,7 +216,7 @@ export default function Landing() {
                   'Infrastructură': 'bg-orange-100 text-orange-700',
                   'Iluminat':       'bg-yellow-100 text-yellow-700',
                   'Trafic':         'bg-red-100 text-red-700',
-                  'Trotuare':       'bg-purple-100 text-purple-700',
+                  'Canalizare':       'bg-purple-100 text-purple-700',
                   'Parcuri':        'bg-green-100 text-green-700',
                   'Gunoi':          'bg-gray-100 text-gray-600',
                   'Animale':        'bg-blue-100 text-blue-700',
@@ -288,7 +288,7 @@ export default function Landing() {
                 <div className="bg-gray-50 rounded-lg p-4">
                   <p className="font-medium text-sm text-gray-700 mb-3">Selectează categoria</p>
                   <div className="grid grid-cols-3 gap-2">
-                    {["Infrastructură", "Iluminat", "Trafic", "Trotuare", "Parcuri", "Gunoi"].map((label) => (
+                    {["Infrastructură", "Iluminat", "Trafic", "Canalizare", "Parcuri", "Gunoi"].map((label) => (
                       <div key={label} className="bg-white border border-gray-200 rounded-lg py-2.5 px-2 text-center">
                         <span className="text-xs font-medium text-gray-700">{label}</span>
                       </div>

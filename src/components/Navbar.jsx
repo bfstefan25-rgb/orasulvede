@@ -68,8 +68,8 @@ export default function Navbar() {
     { to: '/profil', label: 'Profil', icon: User },
   ]
 
-  const NotificationDropdown = ({ className }) => (
-    <div className={`absolute right-0 w-80 bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 z-50 overflow-hidden ${className}`}>
+  const NotificationDropdown = () => (
+    <div className="fixed top-16 right-2 left-2 sm:absolute sm:left-auto sm:right-0 sm:w-80 bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 z-[999] overflow-hidden">
       <div className="px-4 py-3 border-b border-gray-100 dark:border-gray-700 flex items-center justify-between">
         <h3 className="font-semibold text-gray-900 dark:text-white text-sm">Notificări</h3>
         {notifications.some(n => !n.read) && (
@@ -108,9 +108,9 @@ export default function Navbar() {
             />
           </Link>
 
-          {/* Motto — centered in the gap between logo and nav */}
-          <span className="hidden md:block flex-1 text-center text-[10px] font-semibold tracking-widest text-gray-400 dark:text-gray-500 uppercase leading-tight whitespace-nowrap px-4">
-            VEZI. RAPORTEAZĂ. SCHIMBĂ
+          {/* Motto */}
+          <span className="flex-1 text-right md:text-center text-[9px] font-semibold tracking-widest text-gray-400 dark:text-gray-500 uppercase leading-tight whitespace-nowrap px-3">
+            VEZI · RAPORTEAZĂ · SCHIMBĂ
           </span>
 
           {/* Right side */}
@@ -129,7 +129,7 @@ export default function Navbar() {
                     </span>
                   )}
                 </button>
-                {showDropdown && <NotificationDropdown className="top-12" />}
+                {showDropdown && <NotificationDropdown />}
               </div>
             )}
 

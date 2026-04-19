@@ -150,9 +150,8 @@ async function saveSettings() {
   const updates = { settings }
   if (settings.displayName) updates.full_name = settings.displayName
   await supabase.from('profiles').update(updates).eq('id', authUser.id)
-  setSaveMsg('Salvat cu succes')
-  setTimeout(() => setSaveMsg(''), 3000)
   setSaving(false)
+  setShowSettings(false)
   await fetchAll()
 }
   async function deleteAccount() {

@@ -2,17 +2,19 @@ import { useState, useEffect, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
-import { ChevronUp, MessageSquare, MapPin, Clock, TrendingUp, FileText, Wrench, CheckCircle2, Plus, ArrowRight, Search, X } from 'lucide-react'
+import { ChevronUp, MessageSquare, MapPin, Clock, TrendingUp, FileText, Wrench, CheckCircle2, Plus, ArrowRight, Search, X, Navigation } from 'lucide-react'
+import { useSEO } from '../hooks/useSEO'
+import Onboarding from '../components/Onboarding'
 
 const PAGE_SIZE = 10
 
-const CATEGORIES = ['Toate', 'Infrastructură', 'Iluminat', 'Trafic', 'Trotuare', 'Parcuri', 'Gunoi', 'Animale', 'Alte pericole']
+const CATEGORIES = ['Toate', 'Infrastructură', 'Iluminat', 'Trafic', 'Canalizare', 'Parcuri', 'Gunoi', 'Animale', 'Alte pericole']
 
 const CATEGORY_BORDER = {
   'Infrastructură': 'border-l-orange-400',
   'Iluminat':       'border-l-yellow-400',
   'Trafic':         'border-l-red-400',
-  'Trotuare':       'border-l-purple-400',
+  'Canalizare':       'border-l-purple-400',
   'Parcuri':        'border-l-green-400',
   'Gunoi':          'border-l-gray-400',
   'Animale':        'border-l-blue-400',
@@ -53,6 +55,19 @@ export default function Home() {
   const [page, setPage]               = useState(0)
   const [hasMore, setHasMore]         = useState(false)
   const [loadingMore, setLoadingMore] = useState(false)
+  const [nearMe, setNearMe]           = useState(false)
+  const [userLocation, setUserLocation] = useState(null)
+  const [locating, setLocating]       = useState(false)
+  const [showOnboarding, setShowOnboarding] = useState(false)
+
+  useSEO({ title: 'Acasă', description: 'Vezi și raportează problemele din orașul tău. Urmărește progresul și contribuie la o comunitate mai bună.' })
+
+  // Show onboarding for first-time logged-in users (keyed by user ID)
+  useEffect(() => {
+    if (user && !localStorage.getItem(`onboarding_done_${user.id}`)) {
+      setShowOnboarding(true)
+    }
+  }, [user])
 
   // Debounce search input
   useEffect(() => {
@@ -173,6 +188,33 @@ export default function Home() {
     }
   }
 
+  function haversine(lat1, lng1, lat2, lng2) {
+    const R = 6371
+    const dLat = (lat2 - lat1) * Math.PI / 180
+    const dLng = (lng2 - lng1) * Math.PI / 180
+    const a = Math.sin(dLat / 2) ** 2 + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLng / 2) ** 2
+    return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
+  }
+
+  function toggleNearMe() {
+    if (nearMe) { setNearMe(false); return }
+    setLocating(true)
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        setUserLocation({ lat: pos.coords.latitude, lng: pos.coords.longitude })
+        setNearMe(true)
+        setLocating(false)
+      },
+      () => { alert('Nu am putut accesa locația ta.'); setLocating(false) }
+    )
+  }
+
+  const displayedReports = nearMe && userLocation
+    ? reports
+        .filter(r => r.latitude && r.longitude && haversine(userLocation.lat, userLocation.lng, r.latitude, r.longitude) <= 5)
+        .sort((a, b) => haversine(userLocation.lat, userLocation.lng, a.latitude, a.longitude) - haversine(userLocation.lat, userLocation.lng, b.latitude, b.longitude))
+    : reports
+
   const firstName = profile?.full_name?.split(' ')[0] || user?.user_metadata?.full_name?.split(' ')[0] || user?.user_metadata?.name?.split(' ')[0] || 'Cetățean'
 
   const LEVELS = [
@@ -190,6 +232,8 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950 pb-24">
+
+      {showOnboarding && <Onboarding onDone={() => setShowOnboarding(false)} userId={user?.id} />}
 
       {/* Hero header */}
       <div className="relative overflow-hidden" style={{ background: 'linear-gradient(160deg, #1e3a5f 0%, #1d4ed8 55%, #60a5fa 100%)' }}>
@@ -325,22 +369,36 @@ export default function Home() {
       {/* Feed */}
       <div className="max-w-4xl mx-auto px-4 md:px-8 mt-6">
         {/* Tabs */}
-        <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center justify-between mb-4 gap-2">
           <h2 className="text-sm font-semibold text-gray-900 dark:text-white">Rapoarte</h2>
-          <div className="flex bg-gray-100 dark:bg-gray-800 rounded-lg p-0.5">
-            {['recente', 'populare'].map(t => (
-              <button
-                key={t}
-                onClick={() => setTab(t)}
-                className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all capitalize ${
-                  tab === t
-                    ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm'
-                    : 'text-gray-500 dark:text-gray-400'
-                }`}
-              >
-                {t === 'recente' ? 'Recente' : 'Populare'}
-              </button>
-            ))}
+          <div className="flex items-center gap-2">
+            <button
+              onClick={toggleNearMe}
+              disabled={locating}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border transition-all ${
+                nearMe
+                  ? 'bg-primary-600 text-white border-primary-600'
+                  : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-gray-700 hover:border-primary-400'
+              }`}
+            >
+              <Navigation size={12} className={locating ? 'animate-spin' : ''} />
+              {locating ? 'Se localizează...' : 'Lângă mine'}
+            </button>
+            <div className="flex bg-gray-100 dark:bg-gray-800 rounded-lg p-0.5">
+              {['recente', 'populare'].map(t => (
+                <button
+                  key={t}
+                  onClick={() => setTab(t)}
+                  className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all capitalize ${
+                    tab === t
+                      ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm'
+                      : 'text-gray-500 dark:text-gray-400'
+                  }`}
+                >
+                  {t === 'recente' ? 'Recente' : 'Populare'}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
 
@@ -394,12 +452,14 @@ export default function Home() {
               </div>
             ))}
           </div>
-        ) : reports.length === 0 ? (
+        ) : displayedReports.length === 0 ? (
           <div className="text-center py-16">
             <div className="w-12 h-12 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center mx-auto mb-3">
               <FileText size={20} className="text-gray-400" />
             </div>
-            <p className="text-sm text-gray-500 dark:text-gray-400 font-medium">Nicio problemă raportată încă</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400 font-medium">
+              {nearMe ? 'Nicio problemă raportată în raza de 5 km' : 'Nicio problemă raportată încă'}
+            </p>
             <button
               onClick={() => navigate('/raporteaza')}
               className="mt-4 bg-primary-600 text-white h-10 px-5 rounded-xl text-sm font-medium hover:bg-primary-700 transition-colors inline-flex items-center gap-1.5"
@@ -411,9 +471,12 @@ export default function Home() {
         ) : (
           <>
           <div className="space-y-3">
-            {reports.map(report => {
+            {displayedReports.map(report => {
               const sc = STATUS_CONFIG[report.status] || STATUS_CONFIG.raportat
               const voted = !!userVotes[report.id]
+              const dist = nearMe && userLocation && report.latitude && report.longitude
+                ? haversine(userLocation.lat, userLocation.lng, report.latitude, report.longitude)
+                : null
 
               return (
                 <div
@@ -466,6 +529,12 @@ export default function Home() {
                           <Clock size={11} strokeWidth={2} />
                           {timeAgo(report.created_at)}
                         </span>
+                        {dist !== null && (
+                          <span className="text-xs text-primary-600 dark:text-primary-400 flex items-center gap-1 font-medium">
+                            <Navigation size={11} />
+                            {dist < 1 ? `${Math.round(dist * 1000)}m` : `${dist.toFixed(1)}km`}
+                          </span>
+                        )}
                       </div>
                     </div>
 

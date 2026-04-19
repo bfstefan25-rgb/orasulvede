@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useSEO } from '../hooks/useSEO'
 import { useParams, Link, useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
@@ -11,7 +12,7 @@ const CATEGORY_COLORS = {
   'Infrastructură': 'bg-orange-100 text-orange-700',
   'Iluminat':       'bg-yellow-100 text-yellow-700',
   'Trafic':         'bg-red-100 text-red-700',
-  'Trotuare':       'bg-purple-100 text-purple-700',
+  'Canalizare':       'bg-purple-100 text-purple-700',
   'Parcuri':        'bg-green-100 text-green-700',
   'Gunoi':          'bg-gray-100 text-gray-700',
   'Animale':        'bg-blue-100 text-blue-700',
@@ -62,6 +63,12 @@ export default function ReportDetail() {
   const [deleteConfirm, setDeleteConfirm] = useState(false)
   const [deleting, setDeleting] = useState(false)
   const [copied, setCopied] = useState(false)
+
+  useSEO({
+    title: report?.title,
+    description: report?.description ? report.description.slice(0, 150) : report ? `${report.category} — ${report.address || 'Orașul tău'}` : undefined,
+    image: report?.image_url || undefined,
+  })
 
   useEffect(() => { fetchAll() }, [id, user])
 
@@ -187,6 +194,7 @@ export default function ReportDetail() {
       </div>
     )
   }
+
 
   const statusInfo = STATUS_CONFIG[report.status] || STATUS_CONFIG['raportat']
   const catColor = CATEGORY_COLORS[report.category] || 'bg-gray-100 text-gray-700'

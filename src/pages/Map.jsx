@@ -2,12 +2,13 @@ import { useEffect, useRef, useState } from 'react'
 import { Search } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import { MarkerClusterer } from '@googlemaps/markerclusterer'
+import { useSEO } from '../hooks/useSEO'
 
 const CATEGORY_CONFIG = {
   'Infrastructură': { color: '#f97316' },
   'Iluminat':       { color: '#eab308' },
   'Trafic':         { color: '#ef4444' },
-  'Trotuare':       { color: '#a855f7' },
+  'Canalizare':       { color: '#a855f7' },
   'Parcuri':        { color: '#22c55e' },
   'Gunoi':          { color: '#6b7280' },
   'Animale':        { color: '#3b82f6' },
@@ -58,6 +59,7 @@ export default function Map() {
   const [mapError, setMapError] = useState(false)
   const [loading, setLoading] = useState(true)
   const [showLegend, setShowLegend] = useState(true)
+  useSEO({ title: 'Hartă', description: 'Vizualizează toate problemele raportate în orașul tău pe o hartă interactivă.' })
 
   // Fetch reports from Supabase
   useEffect(() => {

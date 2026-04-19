@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Trophy, MapPin, TrendingUp, FileText, Wrench, CheckCircle2, Award, Users, AlertTriangle } from 'lucide-react'
+import { useSEO } from '../hooks/useSEO'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 
@@ -75,7 +76,7 @@ const CATEGORY_CONFIG = {
   'Infrastructură': '#f97316',
   'Iluminat':       '#eab308',
   'Trafic':         '#ef4444',
-  'Trotuare':       '#a855f7',
+  'Canalizare':       '#a855f7',
   'Parcuri':        '#22c55e',
   'Gunoi':          '#6b7280',
   'Animale':        '#3b82f6',
@@ -91,6 +92,7 @@ export default function Leaderboard() {
   const [topIgnored,    setTopIgnored]    = useState([])
   const [globalStats,   setGlobalStats]   = useState({ total: 0, resolved: 0, inProgress: 0 })
   const [loading,       setLoading]       = useState(true)
+  useSEO({ title: 'Clasament', description: 'Topul celor mai activi cetățeni și cele mai problematice zone din oraș.' })
 
   useEffect(() => {
     fetchAll()

@@ -7,7 +7,7 @@ const CATEGORIES = [
   { id: 'Infrastructură',  icon: '🔧', desc: 'Gropi, asfalt deteriorat, poduri' },
   { id: 'Iluminat',        icon: '💡', desc: 'Stâlpi defecți, becuri arse' },
   { id: 'Trafic',          icon: '🚗', desc: 'Semafoare, marcaje rutiere' },
-  { id: 'Trotuare',        icon: '🚶', desc: 'Dale sparte, obstacole' },
+  { id: 'Canalizare',      icon: '💧', desc: 'Conducte, inundații, guri de canal' },
   { id: 'Parcuri',         icon: '🌳', desc: 'Bănci, locuri de joacă' },
   { id: 'Gunoi',           icon: '🗑️', desc: 'Deșeuri, containere pline' },
   { id: 'Animale',         icon: '🐾', desc: 'Animale fără stăpân' },

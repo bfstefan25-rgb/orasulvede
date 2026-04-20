@@ -12,6 +12,7 @@ import Login from './pages/Login'
 import Register from './pages/Register'
 import Admin from './pages/Admin'
 import Legal from './pages/Legal'
+import ResetPassword from './pages/ResetPassword'
 import Navbar from './components/Navbar'
 
 function App() {
@@ -30,6 +31,7 @@ function App() {
           <Route path="/profil" element={<><Navbar /><Profile /></>} />
           <Route path="/admin" element={<Admin />} />
           <Route path="/legal/:page" element={<Legal />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
         </Routes>
       </SettingsProvider>
     </AuthProvider>

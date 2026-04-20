@@ -32,7 +32,7 @@ export default function Login() {
     e.preventDefault()
     setResetLoading(true)
     await supabase.auth.resetPasswordForEmail(resetEmail, {
-      redirectTo: window.location.origin + '/acasa',
+      redirectTo: window.location.origin + '/reset-password',
     })
     setResetSent(true)
     setResetLoading(false)
@@ -56,7 +56,7 @@ export default function Login() {
           <p className="text-gray-400 text-sm mb-6">Îți trimitem un link de resetare pe email.</p>
           {resetSent ? (
             <div className="bg-green-50 border border-green-200 text-green-700 rounded-xl px-4 py-4 text-sm text-center">
-              ✅ Email trimis! Verifică căsuța de intrare.
+              ✅ Email trimis! Verifică în inbox sau chiar în folderul spam.
             </div>
           ) : (
             <form onSubmit={handleReset} className="space-y-4">

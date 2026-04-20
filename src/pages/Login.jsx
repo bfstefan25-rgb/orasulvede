@@ -10,6 +10,10 @@ export default function Login() {
   const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [resetMode, setResetMode] = useState(false)
+  const [resetEmail, setResetEmail] = useState('')
+  const [resetSent, setResetSent] = useState(false)
+  const [resetLoading, setResetLoading] = useState(false)
 
   const handleLogin = async (e) => {
     e.preventDefault()
@@ -24,11 +28,58 @@ export default function Login() {
     setLoading(false)
   }
 
+  const handleReset = async (e) => {
+    e.preventDefault()
+    setResetLoading(true)
+    await supabase.auth.resetPasswordForEmail(resetEmail, {
+      redirectTo: window.location.origin + '/acasa',
+    })
+    setResetSent(true)
+    setResetLoading(false)
+  }
+
   const handleGoogle = async () => {
     await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: { redirectTo: window.location.origin + '/acasa' }
     })
+  }
+
+  if (resetMode) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
+        <div className="bg-white rounded-3xl shadow-sm border border-gray-100 w-full max-w-md p-8">
+          <button onClick={() => { setResetMode(false); setResetSent(false) }} className="flex items-center gap-2 text-gray-400 hover:text-gray-600 text-sm mb-8">
+            <ArrowLeft size={16} /> Înapoi la autentificare
+          </button>
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">Resetare parolă</h2>
+          <p className="text-gray-400 text-sm mb-6">Îți trimitem un link de resetare pe email.</p>
+          {resetSent ? (
+            <div className="bg-green-50 border border-green-200 text-green-700 rounded-xl px-4 py-4 text-sm text-center">
+              ✅ Email trimis! Verifică căsuța de intrare.
+            </div>
+          ) : (
+            <form onSubmit={handleReset} className="space-y-4">
+              <input
+                type="email"
+                value={resetEmail}
+                onChange={e => setResetEmail(e.target.value)}
+                placeholder="email@exemplu.com"
+                required
+                className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 text-gray-900 focus:outline-none focus:border-blue-500 transition-colors"
+              />
+              <button
+                type="submit"
+                disabled={resetLoading}
+                className="w-full bg-blue-600 text-white rounded-xl py-3 font-semibold hover:bg-blue-700 transition-colors disabled:opacity-50"
+              >
+                {resetLoading ? 'Se trimite...' : 'Trimite link de resetare'}
+              </button>
+            </form>
+          )}
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -100,6 +151,11 @@ export default function Login() {
                 {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
               </button>
             </div>
+          </div>
+          <div className="text-right -mt-2">
+            <button type="button" onClick={() => setResetMode(true)} className="text-xs text-blue-600 hover:underline">
+              Ai uitat parola?
+            </button>
           </div>
           <button
             type="submit"

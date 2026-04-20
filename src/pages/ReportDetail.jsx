@@ -63,6 +63,7 @@ export default function ReportDetail() {
   const [deleteConfirm, setDeleteConfirm] = useState(false)
   const [deleting, setDeleting] = useState(false)
   const [copied, setCopied] = useState(false)
+  const [zoomOpen, setZoomOpen] = useState(false)
 
   useSEO({
     title: report?.title,
@@ -215,11 +216,35 @@ export default function ReportDetail() {
 
         {/* Hero image */}
         {report.image_url && (
-          <div className="rounded-2xl overflow-hidden mb-6 shadow-sm">
+          <div
+            className="rounded-2xl overflow-hidden mb-6 shadow-sm cursor-zoom-in"
+            onClick={() => setZoomOpen(true)}
+          >
             <img
               src={report.image_url}
               alt={report.title}
               className="w-full max-h-80 object-cover"
+            />
+          </div>
+        )}
+
+        {/* Image zoom lightbox */}
+        {zoomOpen && report.image_url && (
+          <div
+            className="fixed inset-0 z-[9999] bg-black/90 flex items-center justify-center p-4"
+            onClick={() => setZoomOpen(false)}
+          >
+            <button
+              className="absolute top-4 right-4 text-white/80 hover:text-white bg-black/40 rounded-full p-2"
+              onClick={() => setZoomOpen(false)}
+            >
+              <X size={24} />
+            </button>
+            <img
+              src={report.image_url}
+              alt={report.title}
+              className="max-w-full max-h-full rounded-xl object-contain"
+              onClick={e => e.stopPropagation()}
             />
           </div>
         )}

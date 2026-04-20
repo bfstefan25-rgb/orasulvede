@@ -12,6 +12,13 @@
     <meta name="apple-mobile-web-app-title" content="OrasulVede" />
     <meta name="description" content="Raportează problemele din orașul tău. Vezi. Raportează. Schimbă." />
     <title>Orașul Vede</title>
+    <script>
+      try {
+        if (localStorage.getItem('theme') === 'dark') {
+          document.documentElement.classList.add('dark')
+        }
+      } catch(e) {}
+    </script>
   </head>
   <body>
     <div id="root"></div>

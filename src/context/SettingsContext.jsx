@@ -15,12 +15,16 @@ const defaultSettings = {
 }
 
 function applySettings(settings) {
-  if (settings.theme === 'dark') {
+  // Support both English keys (theme/dark) and Romanian keys (tema/intunecat)
+  const isDark = settings.theme === 'dark' || settings.tema === 'intunecat'
+  if (isDark) {
     document.documentElement.classList.add('dark')
+    localStorage.setItem('theme', 'dark')
   } else {
     document.documentElement.classList.remove('dark')
+    localStorage.setItem('theme', 'light')
   }
-  document.documentElement.style.fontSize = settings.largeText ? '18px' : ''
+  document.documentElement.style.fontSize = (settings.largeText || settings.textMare) ? '18px' : ''
 }
 
 export function SettingsProvider({ children }) {

@@ -100,60 +100,59 @@ export default function Admin() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', background: '#f8fafc', padding: '32px 24px' }}>
+    <div className="min-h-screen bg-gray-50 pb-8">
       <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
 
       {/* Header */}
-      <div style={{ maxWidth: 1100, margin: '0 auto' }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 32 }}>
+      <div className="max-w-5xl mx-auto px-4 pt-6">
+        <div className="flex items-center justify-between gap-3 mb-6">
           <div>
-            <h1 style={{ fontSize: 28, fontWeight: 900, color: '#1a1a2e', margin: 0 }}>🛠️ Panou Admin</h1>
-            <p style={{ color: '#6b7280', margin: '4px 0 0' }}>Gestionează raportările cetățenilor</p>
+            <h1 className="text-xl md:text-2xl font-black text-gray-900">🛠️ Panou Admin</h1>
+            <p className="text-gray-500 text-sm mt-0.5">Gestionează raportările cetățenilor</p>
           </div>
-          <button onClick={() => navigate('/acasa')} style={{ background: '#fff', border: '1px solid #e5e7eb', borderRadius: 12, padding: '8px 20px', fontWeight: 600, color: '#374151', cursor: 'pointer' }}>
-            ← Înapoi la aplicație
+          <button onClick={() => navigate('/acasa')} className="flex-shrink-0 bg-white border border-gray-200 rounded-xl px-4 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-50 transition-colors">
+            ← Înapoi
           </button>
         </div>
 
         {/* Stats cards */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: 12, marginBottom: 32 }}>
+        <div className="grid grid-cols-3 md:grid-cols-6 gap-2 mb-6">
           {[
-            { label: 'Total', value: stats.total, bg: '#eff6ff', color: '#2563EB' },
-            { label: 'Raportate', value: stats.raportat, bg: '#dbeafe', color: '#1d4ed8' },
-            { label: 'În verificare', value: stats.in_verificare, bg: '#fef9c3', color: '#92400e' },
-            { label: 'În lucru', value: stats.in_lucru, bg: '#ffedd5', color: '#c2410c' },
-            { label: 'Rezolvate', value: stats.rezolvat, bg: '#dcfce7', color: '#15803d' },
-            { label: 'Respinse', value: stats.respins, bg: '#fee2e2', color: '#b91c1c' },
-          ].map(({ label, value, bg, color }) => (
-            <div key={label} style={{ background: '#fff', borderRadius: 16, padding: '16px', border: '1px solid #e5e7eb', textAlign: 'center' }}>
-              <div style={{ fontSize: 24, fontWeight: 900, color }}>{value ?? 0}</div>
-              <div style={{ fontSize: 12, color: '#6b7280', marginTop: 4 }}>{label}</div>
+            { label: 'Total',        value: stats.total,        color: 'text-blue-600' },
+            { label: 'Raportate',    value: stats.raportat,     color: 'text-blue-700' },
+            { label: 'Verificare',   value: stats.in_verificare,color: 'text-yellow-700' },
+            { label: 'În lucru',     value: stats.in_lucru,     color: 'text-orange-600' },
+            { label: 'Rezolvate',    value: stats.rezolvat,     color: 'text-green-600' },
+            { label: 'Respinse',     value: stats.respins,      color: 'text-red-600' },
+          ].map(({ label, value, color }) => (
+            <div key={label} className="bg-white rounded-2xl p-3 border border-gray-200 text-center">
+              <div className={`text-xl font-black ${color}`}>{value ?? 0}</div>
+              <div className="text-xs text-gray-500 mt-1 leading-tight">{label}</div>
             </div>
           ))}
         </div>
 
         {/* Filter tabs */}
-        <div style={{ display: 'flex', gap: 8, marginBottom: 20, flexWrap: 'wrap' }}>
-          {[['all', 'Toate'], ['raportat', 'Raportate'], ['in_verificare', 'În verificare'], ['in_lucru', 'În lucru'], ['rezolvat', 'Rezolvate'], ['respins', 'Respinse']].map(([val, label]) => (
+        <div className="flex gap-2 mb-4 overflow-x-auto pb-1">
+          {[['all', 'Toate'], ['raportat', 'Raportate'], ['in_verificare', 'Verificare'], ['in_lucru', 'În lucru'], ['rezolvat', 'Rezolvate'], ['respins', 'Respinse']].map(([val, label]) => (
             <button
               key={val}
               onClick={() => setFilter(val)}
-              style={{
-                padding: '8px 16px', borderRadius: 100, border: 'none', cursor: 'pointer', fontWeight: 600, fontSize: 13,
-                background: filter === val ? '#2563EB' : '#fff',
-                color: filter === val ? '#fff' : '#374151',
-                border: filter === val ? 'none' : '1px solid #e5e7eb',
-              }}
+              className={`flex-shrink-0 px-4 py-2 rounded-full text-xs font-semibold border transition-colors ${
+                filter === val
+                  ? 'bg-blue-600 text-white border-blue-600'
+                  : 'bg-white text-gray-700 border-gray-200 hover:border-blue-300'
+              }`}
             >
               {label}
             </button>
           ))}
         </div>
 
-        {/* Reports table */}
-        <div style={{ background: '#fff', borderRadius: 20, border: '1px solid #e5e7eb', overflow: 'hidden' }}>
+        {/* Reports list */}
+        <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden">
           {filtered.length === 0 ? (
-            <div style={{ padding: 48, textAlign: 'center', color: '#9ca3af' }}>Nicio raportare găsită</div>
+            <div className="py-12 text-center text-gray-400 text-sm">Nicio raportare găsită</div>
           ) : (
             filtered.map((report, i) => {
               const sc = STATUS_COLORS[report.status] || STATUS_COLORS.raportat
@@ -163,48 +162,40 @@ export default function Admin() {
               return (
                 <div
                   key={report.id}
-                  style={{
-                    padding: '20px 24px',
-                    borderBottom: i < filtered.length - 1 ? '1px solid #f3f4f6' : 'none',
-                    display: 'flex', alignItems: 'flex-start', gap: 16,
-                    opacity: isUpdating ? 0.6 : 1,
-                    transition: 'opacity 0.2s'
-                  }}
+                  className={`p-4 ${i < filtered.length - 1 ? 'border-b border-gray-100' : ''} ${isUpdating ? 'opacity-50' : ''} transition-opacity`}
                 >
-                  {/* Info */}
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6, flexWrap: 'wrap' }}>
-                      <span style={{ fontWeight: 700, fontSize: 15, color: '#1a1a2e' }}>{report.title}</span>
-                      <span style={{ background: sc.bg, color: sc.color, borderRadius: 100, padding: '2px 10px', fontSize: 12, fontWeight: 700 }}>
-                        {STATUS_LABELS[report.status]}
-                      </span>
-                      <span style={{ background: '#f3f4f6', color: '#6b7280', borderRadius: 100, padding: '2px 10px', fontSize: 12 }}>
-                        {report.category}
-                      </span>
-                    </div>
-                    {report.description && (
-                      <p style={{ color: '#6b7280', fontSize: 13, margin: '0 0 6px', lineHeight: 1.5 }}>
-                        {report.description.substring(0, 120)}{report.description.length > 120 ? '...' : ''}
-                      </p>
-                    )}
-                    <div style={{ display: 'flex', gap: 16, fontSize: 12, color: '#9ca3af' }}>
-                      {report.address && <span>📍 {report.address}</span>}
-                      <span>🕐 {timeAgo(report.created_at)}</span>
-                      <span style={{ fontFamily: 'monospace', fontSize: 11 }}>ID: {report.id.substring(0, 8)}...</span>
-                    </div>
+                  {/* Title + badges */}
+                  <div className="flex flex-wrap items-center gap-2 mb-2">
+                    <span className="font-bold text-sm text-gray-900 mr-1">{report.title}</span>
+                    <span style={{ background: sc.bg, color: sc.color }} className="rounded-full px-2.5 py-0.5 text-xs font-bold">
+                      {STATUS_LABELS[report.status]}
+                    </span>
+                    <span className="bg-gray-100 text-gray-500 rounded-full px-2.5 py-0.5 text-xs">
+                      {report.category}
+                    </span>
                   </div>
 
-                  {/* Action buttons */}
-                  <div style={{ display: 'flex', gap: 8, flexShrink: 0, flexWrap: 'wrap', justifyContent: 'flex-end' }}>
+                  {/* Description */}
+                  {report.description && (
+                    <p className="text-gray-500 text-xs mb-2 leading-relaxed">
+                      {report.description.substring(0, 100)}{report.description.length > 100 ? '...' : ''}
+                    </p>
+                  )}
+
+                  {/* Meta */}
+                  <div className="flex flex-wrap gap-3 text-xs text-gray-400 mb-3">
+                    {report.address && <span>📍 {report.address}</span>}
+                    <span>🕐 {timeAgo(report.created_at)}</span>
+                    <span className="font-mono text-[11px]">ID: {report.id.substring(0, 8)}...</span>
+                  </div>
+
+                  {/* Actions */}
+                  <div className="flex flex-wrap gap-2">
                     {nextStatus && (
                       <button
                         onClick={() => updateStatus(report.id, nextStatus)}
                         disabled={isUpdating}
-                        style={{
-                          background: '#2563EB', color: '#fff', border: 'none', borderRadius: 10,
-                          padding: '8px 14px', fontSize: 13, fontWeight: 700, cursor: 'pointer',
-                          whiteSpace: 'nowrap'
-                        }}
+                        className="bg-blue-600 text-white rounded-xl px-3 py-2 text-xs font-bold hover:bg-blue-700 transition-colors disabled:opacity-50"
                       >
                         {isUpdating ? '...' : `→ ${STATUS_LABELS[nextStatus]}`}
                       </button>
@@ -213,10 +204,7 @@ export default function Admin() {
                       <button
                         onClick={() => updateStatus(report.id, 'respins')}
                         disabled={isUpdating}
-                        style={{
-                          background: '#fff', color: '#b91c1c', border: '1px solid #fca5a5', borderRadius: 10,
-                          padding: '8px 14px', fontSize: 13, fontWeight: 700, cursor: 'pointer'
-                        }}
+                        className="bg-white text-red-600 border border-red-200 rounded-xl px-3 py-2 text-xs font-bold hover:bg-red-50 transition-colors"
                       >
                         ✕ Respinge
                       </button>
@@ -225,10 +213,7 @@ export default function Admin() {
                       <button
                         onClick={() => updateStatus(report.id, 'raportat')}
                         disabled={isUpdating}
-                        style={{
-                          background: '#fff', color: '#6b7280', border: '1px solid #e5e7eb', borderRadius: 10,
-                          padding: '8px 14px', fontSize: 13, fontWeight: 600, cursor: 'pointer'
-                        }}
+                        className="bg-white text-gray-600 border border-gray-200 rounded-xl px-3 py-2 text-xs font-semibold hover:bg-gray-50 transition-colors"
                       >
                         ↺ Resetează
                       </button>
@@ -237,11 +222,7 @@ export default function Admin() {
                       href={`/raport/${report.id}`}
                       target="_blank"
                       rel="noreferrer"
-                      style={{
-                        background: '#f3f4f6', color: '#374151', border: 'none', borderRadius: 10,
-                        padding: '8px 14px', fontSize: 13, fontWeight: 600, cursor: 'pointer',
-                        textDecoration: 'none', display: 'inline-block'
-                      }}
+                      className="bg-gray-100 text-gray-700 rounded-xl px-3 py-2 text-xs font-semibold hover:bg-gray-200 transition-colors no-underline"
                     >
                       👁️ Vezi
                     </a>

@@ -3,6 +3,7 @@ import { useSEO } from '../hooks/useSEO'
 import { useParams, Link, useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
+import { useAuthModal } from '../context/AuthModalContext'
 import {
   ArrowLeft, MapPin, Clock, ThumbsUp, MessageCircle,
   User, Send, AlertCircle, Trash2, Pencil, Check, X, Share2
@@ -44,6 +45,7 @@ function timeAgo(date) {
 export default function ReportDetail() {
   const { id } = useParams()
   const { user } = useAuth()
+  const { openAuthModal } = useAuthModal()
   const navigate = useNavigate()
 
   const [report, setReport] = useState(null)
@@ -120,7 +122,7 @@ export default function ReportDetail() {
   }
 
   async function handleVote() {
-    if (!user) { navigate('/login'); return }
+    if (!user) { openAuthModal(); return }
     if (votingLoading) return
     setVotingLoading(true)
 
@@ -138,7 +140,7 @@ export default function ReportDetail() {
 
   async function handleComment(e) {
     e.preventDefault()
-    if (!user) { navigate('/login'); return }
+    if (!user) { openAuthModal(); return }
     if (!newComment.trim()) return
     setSubmittingComment(true)
 
@@ -342,6 +344,17 @@ export default function ReportDetail() {
           </div>
         )}
 
+        {/* Admin note */}
+        {report.admin_note && (
+          <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-2xl p-5 mb-4">
+            <div className="flex items-center gap-2 mb-2">
+              <span className="text-blue-600 dark:text-blue-400 text-base">📣</span>
+              <h3 className="font-bold text-blue-800 dark:text-blue-300 text-sm">Răspuns oficial</h3>
+            </div>
+            <p className="text-blue-900 dark:text-blue-200 text-sm leading-relaxed">{report.admin_note}</p>
+          </div>
+        )}
+
         {/* Status timeline */}
         {report.status !== 'respins' && (
           <div className="bg-white dark:bg-gray-800 rounded-2xl p-5 shadow-sm border border-gray-100 dark:border-gray-700 mb-4">
@@ -508,9 +521,9 @@ export default function ReportDetail() {
             </form>
           ) : (
             <div className="px-5 py-4 border-t border-gray-100 dark:border-gray-700 text-center">
-              <Link to="/login" className="text-blue-600 text-sm font-medium hover:underline">
+              <button onClick={() => openAuthModal()} className="text-blue-600 text-sm font-medium hover:underline">
                 Conectează-te pentru a comenta
-              </Link>
+              </button>
             </div>
           )}
         </div>

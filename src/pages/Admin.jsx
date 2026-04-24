@@ -31,19 +31,22 @@ function timeAgo(date) {
 
 export default function Admin() {
   const navigate = useNavigate()
-  const [loading, setLoading]   = useState(true)
-  const [allowed, setAllowed]   = useState(false)
-  const [reports, setReports]   = useState([])
-  const [filter,  setFilter]    = useState('all')
-  const [updating, setUpdating] = useState(null)
-  const [stats, setStats]       = useState({})
+  const [loading, setLoading]     = useState(true)
+  const [allowed, setAllowed]     = useState(false)
+  const [reports, setReports]     = useState([])
+  const [filter,  setFilter]      = useState('all')
+  const [updating, setUpdating]   = useState(null)
+  const [stats, setStats]         = useState({})
+  const [noteInputs, setNoteInputs]   = useState({})   // reportId -> draft text
+  const [savingNote, setSavingNote]   = useState(null)  // reportId being saved
+  const [savedNote, setSavedNote]     = useState(null)  // reportId just saved (flash)
 
   useEffect(() => { init() }, [])
 
   async function init() {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user || user.id !== ADMIN_ID) {
-      setLoading(false)
+      navigate('/acasa', { replace: true })
       return
     }
     setAllowed(true)
@@ -54,10 +57,14 @@ export default function Admin() {
   async function fetchReports() {
     const { data } = await supabase
       .from('reports')
-      .select('id, title, category, status, created_at, address, user_id, description')
+      .select('id, title, category, status, created_at, address, user_id, description, admin_note')
       .order('created_at', { ascending: false })
     const list = data || []
     setReports(list)
+    // Pre-fill note inputs with existing notes
+    const inputs = {}
+    list.forEach(r => { if (r.admin_note) inputs[r.id] = r.admin_note })
+    setNoteInputs(prev => ({ ...inputs, ...prev }))
     const s = {}
     STATUS_FLOW.concat(['respins']).forEach(st => {
       s[st] = list.filter(r => r.status === st).length
@@ -68,41 +75,35 @@ export default function Admin() {
 
   async function updateStatus(reportId, newStatus) {
     setUpdating(reportId)
-    await supabase
-      .from('reports')
-      .update({ status: newStatus })
-      .eq('id', reportId)
+    await supabase.from('reports').update({ status: newStatus }).eq('id', reportId)
     await fetchReports()
     setUpdating(null)
+  }
+
+  async function saveNote(reportId) {
+    setSavingNote(reportId)
+    const note = (noteInputs[reportId] || '').trim()
+    await supabase.from('reports').update({ admin_note: note || null }).eq('id', reportId)
+    setReports(prev => prev.map(r => r.id === reportId ? { ...r, admin_note: note || null } : r))
+    setSavingNote(null)
+    setSavedNote(reportId)
+    setTimeout(() => setSavedNote(n => n === reportId ? null : n), 2000)
   }
 
   const filtered = filter === 'all' ? reports : reports.filter(r => r.status === filter)
 
   if (loading) {
     return (
-      <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <div style={{ width: 32, height: 32, border: '4px solid #2563EB', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" />
       </div>
     )
   }
 
-  if (!allowed) {
-    return (
-      <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: 16 }}>
-        <div style={{ fontSize: 64 }}>🚫</div>
-        <h2 style={{ fontSize: 24, fontWeight: 800, color: '#1a1a2e' }}>Acces interzis</h2>
-        <p style={{ color: '#6b7280' }}>Nu ai permisiuni de administrator.</p>
-        <button onClick={() => navigate('/')} style={{ background: '#2563EB', color: '#fff', border: 'none', borderRadius: 12, padding: '10px 24px', fontWeight: 700, cursor: 'pointer' }}>
-          Înapoi acasă
-        </button>
-      </div>
-    )
-  }
+  if (!allowed) return null
 
   return (
     <div className="min-h-screen bg-gray-50 pb-8">
-      <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
-
       {/* Header */}
       <div className="max-w-5xl mx-auto px-4 pt-6">
         <div className="flex items-center justify-between gap-3 mb-6">
@@ -118,12 +119,12 @@ export default function Admin() {
         {/* Stats cards */}
         <div className="grid grid-cols-3 md:grid-cols-6 gap-2 mb-6">
           {[
-            { label: 'Total',        value: stats.total,        color: 'text-blue-600' },
-            { label: 'Raportate',    value: stats.raportat,     color: 'text-blue-700' },
-            { label: 'Verificare',   value: stats.in_verificare,color: 'text-yellow-700' },
-            { label: 'În lucru',     value: stats.in_lucru,     color: 'text-orange-600' },
-            { label: 'Rezolvate',    value: stats.rezolvat,     color: 'text-green-600' },
-            { label: 'Respinse',     value: stats.respins,      color: 'text-red-600' },
+            { label: 'Total',        value: stats.total,         color: 'text-blue-600' },
+            { label: 'Raportate',    value: stats.raportat,      color: 'text-blue-700' },
+            { label: 'Verificare',   value: stats.in_verificare, color: 'text-yellow-700' },
+            { label: 'În lucru',     value: stats.in_lucru,      color: 'text-orange-600' },
+            { label: 'Rezolvate',    value: stats.rezolvat,      color: 'text-green-600' },
+            { label: 'Respinse',     value: stats.respins,       color: 'text-red-600' },
           ].map(({ label, value, color }) => (
             <div key={label} className="bg-white rounded-2xl p-3 border border-gray-200 text-center">
               <div className={`text-xl font-black ${color}`}>{value ?? 0}</div>
@@ -159,6 +160,10 @@ export default function Admin() {
               const currentIdx = STATUS_FLOW.indexOf(report.status)
               const nextStatus = currentIdx >= 0 && currentIdx < STATUS_FLOW.length - 1 ? STATUS_FLOW[currentIdx + 1] : null
               const isUpdating = updating === report.id
+              const noteDraft = noteInputs[report.id] ?? (report.admin_note || '')
+              const isSavingNote = savingNote === report.id
+              const justSaved = savedNote === report.id
+
               return (
                 <div
                   key={report.id}
@@ -173,6 +178,11 @@ export default function Admin() {
                     <span className="bg-gray-100 text-gray-500 rounded-full px-2.5 py-0.5 text-xs">
                       {report.category}
                     </span>
+                    {report.admin_note && (
+                      <span className="bg-blue-50 text-blue-600 rounded-full px-2.5 py-0.5 text-xs font-semibold">
+                        📣 Notă oficială
+                      </span>
+                    )}
                   </div>
 
                   {/* Description */}
@@ -189,8 +199,8 @@ export default function Admin() {
                     <span className="font-mono text-[11px]">ID: {report.id.substring(0, 8)}...</span>
                   </div>
 
-                  {/* Actions */}
-                  <div className="flex flex-wrap gap-2">
+                  {/* Status actions */}
+                  <div className="flex flex-wrap gap-2 mb-4">
                     {nextStatus && (
                       <button
                         onClick={() => updateStatus(report.id, nextStatus)}
@@ -226,6 +236,32 @@ export default function Admin() {
                     >
                       👁️ Vezi
                     </a>
+                  </div>
+
+                  {/* Admin note */}
+                  <div className="border border-blue-100 bg-blue-50 rounded-xl p-3">
+                    <p className="text-xs font-semibold text-blue-700 mb-2">📣 Notă oficială publică</p>
+                    <textarea
+                      rows={2}
+                      placeholder="Ex: Echipa de intervenție a fost programată pentru 28 aprilie..."
+                      value={noteDraft}
+                      onChange={e => setNoteInputs(prev => ({ ...prev, [report.id]: e.target.value }))}
+                      className="w-full text-xs border border-blue-200 bg-white rounded-lg px-3 py-2 text-gray-800 placeholder-gray-400 focus:outline-none focus:border-blue-400 resize-none"
+                    />
+                    <div className="flex items-center justify-between mt-2">
+                      <span className="text-[11px] text-blue-400">Vizibilă public pe pagina raportului</span>
+                      <button
+                        onClick={() => saveNote(report.id)}
+                        disabled={isSavingNote}
+                        className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-colors ${
+                          justSaved
+                            ? 'bg-green-500 text-white'
+                            : 'bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50'
+                        }`}
+                      >
+                        {isSavingNote ? '...' : justSaved ? '✓ Salvat' : 'Salvează'}
+                      </button>
+                    </div>
                   </div>
                 </div>
               )

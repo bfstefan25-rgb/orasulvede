@@ -36,10 +36,10 @@ serve(async (req) => {
         subject: 'Actualizare raport — Orașul Vede',
         html: `
           <div style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:24px;">
-            <img src="https://orasulvede.vercel.app/ovlogo.png" alt="Orașul Vede" style="height:48px;margin-bottom:24px;" />
+            <img src="https://www.orasulvede.ro/ovlogo.png" alt="Orașul Vede" style="height:48px;margin-bottom:24px;" />
             <h2 style="color:#1a1a2e;font-size:20px;margin-bottom:8px;">Actualizare raport</h2>
             <p style="color:#374151;font-size:15px;line-height:1.6;">${notification.message}</p>
-            <a href="https://orasulvede.vercel.app/acasa"
+            <a href="https://www.orasulvede.ro/acasa"
                style="display:inline-block;margin-top:24px;background:#2563eb;color:#fff;padding:12px 24px;border-radius:10px;font-weight:600;text-decoration:none;font-size:14px;">
               Vezi aplicația →
             </a>

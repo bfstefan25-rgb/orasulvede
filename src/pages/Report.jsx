@@ -195,39 +195,53 @@ export default function Report() {
     setLoading(false)
   }
 
-  // ── Success screen — keep the vibrant gradient, just darken the card slightly ──
   if (success) {
     return (
-      <div className="min-h-screen flex items-center justify-center px-4" style={{ background: "linear-gradient(135deg,#667eea 0%,#764ba2 100%)" }}>
-        <style>{`
-          @keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-18px)}}
-          @keyframes pop{0%{transform:scale(0.5);opacity:0}70%{transform:scale(1.15)}100%{transform:scale(1);opacity:1}}
-          @keyframes float{0%,100%{transform:translateY(0) rotate(-5deg)}50%{transform:translateY(-10px) rotate(5deg)}}
-          .emoji-bounce{animation:bounce 1.2s ease-in-out infinite}
-          .card-pop{animation:pop 0.5s cubic-bezier(.175,.885,.32,1.275) forwards}
-          .emoji-float{animation:float 3s ease-in-out infinite}
-        `}</style>
-        <div className="card-pop bg-white dark:bg-gray-900 rounded-3xl p-10 max-w-md w-full text-center" style={{ boxShadow: "0 32px 80px rgba(0,0,0,0.25)" }}>
-          <div className="emoji-bounce text-7xl mb-4">🚀</div>
-          <div className="flex justify-center gap-2 mb-4 text-2xl">
-            <span className="emoji-float" style={{ animationDelay: "0s" }}>🎉</span>
-            <span className="emoji-float" style={{ animationDelay: "0.3s" }}>⭐</span>
-            <span className="emoji-float" style={{ animationDelay: "0.6s" }}>🎊</span>
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex items-center justify-center px-4">
+        <div className="bg-white dark:bg-gray-900 rounded-3xl border border-gray-100 dark:border-gray-800 shadow-sm w-full max-w-md p-8">
+          {/* Icon */}
+          <div className="w-14 h-14 bg-green-50 dark:bg-green-900/30 rounded-2xl flex items-center justify-center mb-6">
+            <svg className="w-7 h-7 text-green-600 dark:text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+            </svg>
           </div>
-          <h2 className="text-3xl font-black text-gray-900 dark:text-white mb-2">Orașul te-a auzit! 📢</h2>
-          <p className="text-gray-500 dark:text-gray-400 mb-2 text-base">Raportul tău zboară acum spre autoritățile competente...</p>
-          <p className="text-gray-400 dark:text-gray-500 mb-6 text-sm italic">...sau cel puțin sperăm noi 😅</p>
-          <div className="bg-blue-50 dark:bg-blue-900/30 rounded-2xl p-4 mb-8 text-sm text-blue-700 dark:text-blue-300 font-medium">
-            💪 Ești cu un pas mai aproape de un oraș mai bun!
+
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Raport trimis cu succes</h2>
+          <p className="text-gray-500 dark:text-gray-400 text-sm leading-relaxed mb-6">
+            Raportul tău a fost înregistrat și va fi analizat de echipa responsabilă. Poți urmări statusul din pagina ta de profil.
+          </p>
+
+          {/* Progress steps */}
+          <div className="space-y-3 mb-8">
+            {[
+              { label: 'Raport înregistrat', done: true },
+              { label: 'În curs de verificare', done: false },
+              { label: 'Transmis autorităților', done: false },
+            ].map(({ label, done }) => (
+              <div key={label} className="flex items-center gap-3">
+                <div className={`w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 ${done ? 'bg-green-500' : 'bg-gray-200 dark:bg-gray-700'}`}>
+                  {done && (
+                    <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                    </svg>
+                  )}
+                </div>
+                <span className={`text-sm ${done ? 'text-gray-900 dark:text-white font-medium' : 'text-gray-400 dark:text-gray-500'}`}>{label}</span>
+              </div>
+            ))}
           </div>
+
           <div className="flex gap-3">
             <button
               onClick={() => { setSuccess(false); setStep(1); setForm({ category: '', location: '', lat: null, lng: null, title: '', description: '', image: null, imagePreview: null }) }}
-              className="flex-1 border-2 border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 rounded-xl py-3 font-medium hover:border-blue-300 dark:hover:border-blue-600 transition-colors">
+              className="flex-1 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 rounded-xl py-3 text-sm font-medium hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+            >
               Raportează altceva
             </button>
-            <button onClick={() => navigate('/acasa')}
-              className="flex-1 bg-blue-600 text-white rounded-xl py-3 font-medium hover:bg-blue-700 transition-colors">
+            <button
+              onClick={() => navigate('/acasa')}
+              className="flex-1 bg-blue-600 text-white rounded-xl py-3 text-sm font-semibold hover:bg-blue-700 transition-colors"
+            >
               Acasă
             </button>
           </div>

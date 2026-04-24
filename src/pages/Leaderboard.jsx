@@ -108,6 +108,7 @@ export default function Leaderboard() {
     const { data } = await supabase
       .from('profiles')
       .select('id, full_name, username, avatar_url, points, reports_count, resolved_count')
+      .gt('points', 0)
       .order('points', { ascending: false })
       .limit(7)
     setTopUsers(data || [])

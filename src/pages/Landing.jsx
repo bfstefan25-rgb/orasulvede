@@ -479,9 +479,9 @@ export default function Landing() {
                 { label: "Contact",          href: "mailto:contact@orasulvede.ro" },
               ]],
               ["Legal", [
-                { label: "Termeni și condiții", action: () => navigate('/legal/termeni') },
-                { label: "Confidențialitate",   action: () => navigate('/legal/confidentialitate') },
-                { label: "Cookies",             action: () => navigate('/legal/cookies') },
+                { label: "Termeni și condiții", href: "/legal/termeni" },
+                { label: "Confidențialitate",   href: "/legal/confidentialitate" },
+                { label: "Cookies",             href: "/legal/cookies" },
               ]],
             ].map(([title, links]) => (
               <div key={title}>

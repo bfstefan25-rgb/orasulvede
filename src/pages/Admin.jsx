@@ -75,7 +75,7 @@ export default function Admin() {
 
   async function updateStatus(reportId, newStatus) {
     setUpdating(reportId)
-    await supabase.from('reports').update({ status: newStatus }).eq('id', reportId)
+    await supabase.rpc('admin_update_report', { report_id: reportId, new_status: newStatus })
     await fetchReports()
     setUpdating(null)
   }
@@ -83,7 +83,7 @@ export default function Admin() {
   async function saveNote(reportId) {
     setSavingNote(reportId)
     const note = (noteInputs[reportId] || '').trim()
-    await supabase.from('reports').update({ admin_note: note || null }).eq('id', reportId)
+    await supabase.rpc('admin_update_report', { report_id: reportId, new_status: (reports.find(r => r.id === reportId)?.status || 'raportat'), new_note: note || null })
     setReports(prev => prev.map(r => r.id === reportId ? { ...r, admin_note: note || null } : r))
     setSavingNote(null)
     setSavedNote(reportId)

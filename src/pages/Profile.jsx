@@ -341,6 +341,27 @@ async function saveSettings() {
                     )}
                   </div>
                 </div>
+
+                {/* Legal */}
+                <div>
+                  <h3 className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-4">Legal</h3>
+                  <div className="space-y-2">
+                    {[
+                      { label: 'Termeni și condiții', to: '/legal/termeni' },
+                      { label: 'Politică de confidențialitate', to: '/legal/confidentialitate' },
+                      { label: 'Politică de cookies', to: '/legal/cookies' },
+                    ].map(({ label, to }) => (
+                      <Link
+                        key={to}
+                        to={to}
+                        className="flex items-center justify-between w-full py-2.5 px-3 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors text-sm text-gray-600 dark:text-gray-400"
+                      >
+                        {label}
+                        <ChevronRight size={14} className="text-gray-400" />
+                      </Link>
+                    ))}
+                  </div>
+                </div>
               </div>
 
               {/* Save button */}

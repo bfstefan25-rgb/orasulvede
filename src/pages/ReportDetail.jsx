@@ -103,7 +103,7 @@ export default function ReportDetail() {
 
     const { data: comms } = await supabase
       .from('comments')
-      .select('id, content, created_at, user_id')
+      .select('id, content, created_at, user_id, profiles(full_name, username, avatar_url)')
       .eq('report_id', id)
       .order('created_at', { ascending: true })
     setComments(comms || [])
@@ -147,7 +147,7 @@ export default function ReportDetail() {
     const { data, error } = await supabase
       .from('comments')
       .insert({ report_id: id, user_id: user.id, content: newComment.trim() })
-      .select()
+      .select('id, content, created_at, user_id, profiles(full_name, username, avatar_url)')
       .single()
 
     if (!error && data) {
@@ -160,10 +160,11 @@ export default function ReportDetail() {
   async function saveEdit() {
     if (!editTitle.trim()) return
     setSaving(true)
-    const { error } = await supabase
-      .from('reports')
-      .update({ title: editTitle.trim(), description: editDesc.trim() })
-      .eq('id', id)
+    const { error } = await supabase.rpc('update_own_report', {
+      report_id: id,
+      new_title: editTitle.trim(),
+      new_description: editDesc.trim() || null,
+    })
     if (!error) {
       setReport(prev => ({ ...prev, title: editTitle.trim(), description: editDesc.trim() }))
       setEditing(false)
@@ -173,10 +174,9 @@ export default function ReportDetail() {
 
   async function deleteReport() {
     setDeleting(true)
-    await supabase.from('votes').delete().eq('report_id', id)
-    await supabase.from('comments').delete().eq('report_id', id)
-    await supabase.from('reports').delete().eq('id', id)
-    navigate('/acasa')
+    const { error } = await supabase.rpc('delete_own_report', { report_id: id })
+    if (!error) navigate('/acasa')
+    else setDeleting(false)
   }
 
   if (loading) {
@@ -477,22 +477,28 @@ export default function ReportDetail() {
             </div>
           ) : (
             <div className="divide-y divide-gray-50 dark:divide-gray-700">
-              {comments.map(comment => (
-                <div key={comment.id} className="px-5 py-4 flex gap-3">
-                  <div className="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center flex-shrink-0">
-                    <User size={14} className="text-gray-400 dark:text-gray-500" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className="text-xs font-semibold text-gray-700 dark:text-gray-300">
-                        {comment.user_id === user?.id ? 'Tu' : 'Utilizator'}
-                      </span>
-                      <span className="text-xs text-gray-400 dark:text-gray-500">{timeAgo(comment.created_at)}</span>
+              {comments.map(comment => {
+                const isOwn = comment.user_id === user?.id
+                const name = isOwn ? 'Tu' : (comment.profiles?.full_name || comment.profiles?.username || 'Utilizator')
+                const avatar = comment.profiles?.avatar_url
+                return (
+                  <div key={comment.id} className="px-5 py-4 flex gap-3">
+                    <div className="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center flex-shrink-0 overflow-hidden">
+                      {avatar
+                        ? <img src={avatar} alt="" className="w-full h-full object-cover" />
+                        : <User size={14} className="text-gray-400 dark:text-gray-500" />
+                      }
                     </div>
-                    <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">{comment.content}</p>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="text-xs font-semibold text-gray-700 dark:text-gray-300">{name}</span>
+                        <span className="text-xs text-gray-400 dark:text-gray-500">{timeAgo(comment.created_at)}</span>
+                      </div>
+                      <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">{comment.content}</p>
+                    </div>
                   </div>
-                </div>
-              ))}
+                )
+              })}
             </div>
           )}
 

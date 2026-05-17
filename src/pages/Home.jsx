@@ -110,6 +110,7 @@ export default function Home() {
     let query = supabase
       .from('reports')
       .select('id, title, description, category, status, address, latitude, longitude, created_at, votes_count, comments_count, image_url, user_id')
+      .neq('status', 'respins')
 
     if (activeCategory !== 'Toate') query = query.eq('category', activeCategory)
     if (search.trim()) query = query.ilike('title', `%${search.trim()}%`)
@@ -133,6 +134,7 @@ export default function Home() {
     let query = supabase
       .from('reports')
       .select('id, title, description, category, status, address, latitude, longitude, created_at, votes_count, comments_count, image_url, user_id')
+      .neq('status', 'respins')
     if (activeCategory !== 'Toate') query = query.eq('category', activeCategory)
     if (search.trim()) query = query.ilike('title', `%${search.trim()}%`)
     if (tab === 'recente')   query = query.order('created_at', { ascending: false })
@@ -153,6 +155,7 @@ export default function Home() {
       .from('reports')
       .select('id, title, category, votes_count, image_url, status')
       .gte('created_at', week)
+      .neq('status', 'respins')
       .order('votes_count', { ascending: false })
       .limit(5)
       .then(({ data }) => { if (data) setTrending(data) })

@@ -1,11 +1,22 @@
 import { useState, useEffect, useRef } from 'react'
-import { Link, useLocation } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { Home, Map, Plus, Trophy, User, Bell } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 
+function statusDot(message) {
+  if (!message) return 'bg-blue-400'
+  const m = message.toLowerCase()
+  if (m.includes('respins'))    return 'bg-red-500'
+  if (m.includes('rezolvat'))   return 'bg-green-500'
+  if (m.includes('lucru'))      return 'bg-orange-500'
+  if (m.includes('verificare')) return 'bg-yellow-500'
+  return 'bg-blue-400'
+}
+
 export default function Navbar() {
   const location = useLocation()
+  const navigate = useNavigate()
   const { user } = useAuth()
   const [notifications, setNotifications] = useState([])
   const [showDropdown, setShowDropdown] = useState(false)
@@ -81,11 +92,20 @@ export default function Navbar() {
           <p className="text-center text-gray-400 dark:text-gray-500 text-sm py-8">Nicio notificare</p>
         ) : (
           notifications.map(n => (
-            <div key={n.id} className={`px-4 py-3 ${!n.read ? 'bg-primary-50 dark:bg-blue-900/20' : ''}`}>
-              <p className="text-sm text-gray-800 dark:text-gray-200 leading-snug">{n.message}</p>
-              <p className="text-xs text-gray-400 mt-1">
-                {new Date(n.created_at).toLocaleDateString('ro-RO', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
-              </p>
+            <div
+              key={n.id}
+              onClick={() => { if (n.report_id) { setShowDropdown(false); navigate(`/raport/${n.report_id}`) } }}
+              className={`px-4 py-3 flex gap-3 items-start transition-colors ${
+                n.report_id ? 'cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700/50' : ''
+              } ${!n.read ? 'bg-primary-50 dark:bg-blue-900/20' : ''}`}
+            >
+              <div className={`w-2 h-2 rounded-full mt-1.5 flex-shrink-0 ${statusDot(n.message)}`} />
+              <div className="flex-1 min-w-0">
+                <p className="text-sm text-gray-800 dark:text-gray-200 leading-snug">{n.message}</p>
+                <p className="text-xs text-gray-400 mt-1">
+                  {new Date(n.created_at).toLocaleDateString('ro-RO', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
+                </p>
+              </div>
             </div>
           ))
         )}

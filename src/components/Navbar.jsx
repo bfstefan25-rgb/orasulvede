@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
-import { Home, Map, Plus, Trophy, User, Bell } from 'lucide-react'
+import { Home, Map, Plus, Trophy, User, Bell, BarChart3 } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 
@@ -17,7 +17,7 @@ function statusDot(message) {
 export default function Navbar() {
   const location = useLocation()
   const navigate = useNavigate()
-  const { user } = useAuth()
+  const { user, role } = useAuth()
   const [notifications, setNotifications] = useState([])
   const [showDropdown, setShowDropdown] = useState(false)
   const dropdownRef = useRef(null)
@@ -77,6 +77,7 @@ export default function Navbar() {
     { to: '/raporteaza', label: 'Raportează', icon: Plus, special: true },
     { to: '/clasament', label: 'Clasament', icon: Trophy },
     { to: '/profil', label: 'Profil', icon: User },
+    ...(role === 'institution_admin' ? [{ to: '/dashboard', label: 'Dashboard', icon: BarChart3 }] : []),
   ]
 
   const NotificationDropdown = () => (

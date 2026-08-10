@@ -355,6 +355,17 @@ export default function ReportDetail() {
           </div>
         )}
 
+        {/* Assigned department */}
+        {report.assigned_department && (
+          <div className="bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded-2xl p-5 mb-4">
+            <div className="flex items-center gap-2">
+              <span className="text-purple-600 dark:text-purple-400 text-base">🏢</span>
+              <h3 className="font-bold text-purple-800 dark:text-purple-300 text-sm">Alocat către</h3>
+              <span className="text-purple-900 dark:text-purple-200 text-sm">{report.assigned_department}</span>
+            </div>
+          </div>
+        )}
+
         {/* Status timeline */}
         {report.status !== 'respins' && (
           <div className="bg-white dark:bg-gray-800 rounded-2xl p-5 shadow-sm border border-gray-100 dark:border-gray-700 mb-4">

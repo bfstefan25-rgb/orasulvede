@@ -25,3 +25,10 @@ html.dark body {
   background-color: #030712; /* gray-950 */
   color: #f9fafb;
 }
+
+/* Hide site chrome when printing any page */
+@media print {
+  nav {
+    display: none;
+  }
+}

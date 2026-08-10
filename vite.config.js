@@ -3,6 +3,18 @@ import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
 
 export default defineConfig({
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (!id.includes('node_modules')) return
+          if (/react|react-dom|react-router-dom/.test(id)) return 'react-vendor'
+          if (id.includes('@supabase/supabase-js')) return 'supabase'
+          if (id.includes('@googlemaps/')) return 'maps'
+        },
+      },
+    },
+  },
   plugins: [
     react(),
     VitePWA({

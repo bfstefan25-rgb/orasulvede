@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { Camera, MapPin, ArrowLeft, ArrowRight, Loader, X } from 'lucide-react'
+import { extractSector } from '../lib/geocodeSector'
 
 const CATEGORIES = [
   { id: 'Infrastructură',  icon: '🔧', desc: 'Gropi, asfalt deteriorat, poduri' },
@@ -19,7 +20,7 @@ const API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY
 
 async function reverseGeocode(lat, lng) {
   return new Promise((resolve) => {
-    if (!window.google) { resolve(null); return }
+    if (!window.google) { resolve({ address: null, sector: null }); return }
     const geocoder = new window.google.maps.Geocoder()
     geocoder.geocode({ location: { lat, lng }, language: 'ro' }, (results, status) => {
       if (status === 'OK' && results.length > 0) {
@@ -27,14 +28,17 @@ async function reverseGeocode(lat, lng) {
         const route     = components.find(c => c.types.includes('route'))?.long_name
         const streetNum = components.find(c => c.types.includes('street_number'))?.long_name
         const locality  = components.find(c => c.types.includes('locality'))?.long_name
+        const sector    = extractSector(components)
+        let address
         if (route) {
           const addr = streetNum ? route + ' ' + streetNum : route
-          resolve(locality ? addr + ', ' + locality : addr)
+          address = locality ? addr + ', ' + locality : addr
         } else {
-          resolve(results[0].formatted_address)
+          address = results[0].formatted_address
         }
+        resolve({ address, sector })
       } else {
-        resolve(null)
+        resolve({ address: null, sector: null })
       }
     })
   })
@@ -71,19 +75,20 @@ function MapPicker({ lat, lng, onPick, flyTo }) {
         const dLat = e.latLng.lat()
         const dLng = e.latLng.lng()
         setGeocoding(true)
-        const addr = await reverseGeocode(dLat, dLng)
-        setAddress(addr || (dLat.toFixed(4) + ', ' + dLng.toFixed(4)))
+        const { address: addr, sector } = await reverseGeocode(dLat, dLng)
+        const display = addr || (dLat.toFixed(4) + ', ' + dLng.toFixed(4))
+        setAddress(display)
         setGeocoding(false)
-        onPick(dLat, dLng, addr || (dLat.toFixed(4) + ', ' + dLng.toFixed(4)))
+        onPick(dLat, dLng, display, sector)
       })
     }
     if (pan) { map.panTo(pos); map.setZoom(16) }
     setGeocoding(true)
-    const addr = await reverseGeocode(latVal, lngVal)
+    const { address: addr, sector } = await reverseGeocode(latVal, lngVal)
     const display = addr || (latVal.toFixed(4) + ', ' + lngVal.toFixed(4))
     setAddress(display)
     setGeocoding(false)
-    onPick(latVal, lngVal, display)
+    onPick(latVal, lngVal, display, sector)
   }
 
   useEffect(() => {
@@ -138,7 +143,7 @@ export default function Report() {
   const navigate = useNavigate()
   const [step, setStep] = useState(1)
   const [form, setForm] = useState({
-    category: '', location: '', lat: null, lng: null,
+    category: '', location: '', lat: null, lng: null, sector: null,
     title: '', description: '', image: null, imagePreview: null,
   })
   const [loading,    setLoading]    = useState(false)
@@ -160,8 +165,8 @@ export default function Report() {
     setForm(f => ({ ...f, image: null, imagePreview: null }))
   }
 
-  const handlePick = (lat, lng, address) => {
-    setForm(f => ({ ...f, lat, lng, location: address }))
+  const handlePick = (lat, lng, address, sector) => {
+    setForm(f => ({ ...f, lat, lng, location: address, sector }))
   }
 
   const handleUseMyLocation = () => {
@@ -188,7 +193,7 @@ export default function Report() {
       const { error: insertError } = await supabase.from('reports').insert({
         title: form.title, description: form.description || null,
         category: form.category,
-        address: form.location || null,
+        address: form.location || null, sector: form.sector || null,
         latitude: form.lat || 44.4268, longitude: form.lng || 26.1025,
         image_url, user_id: user.id, status: 'raportat',
       })
@@ -234,7 +239,7 @@ export default function Report() {
           </div>
           <div className="flex gap-3">
             <button
-              onClick={() => { setSuccess(false); setStep(1); setForm({ category: '', location: '', lat: null, lng: null, title: '', description: '', image: null, imagePreview: null }) }}
+              onClick={() => { setSuccess(false); setStep(1); setForm({ category: '', location: '', lat: null, lng: null, sector: null, title: '', description: '', image: null, imagePreview: null }) }}
               className="flex-1 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 rounded-xl py-3 text-sm font-medium hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
             >
               Raportează altceva

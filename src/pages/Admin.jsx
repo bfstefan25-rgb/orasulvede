@@ -68,6 +68,19 @@ export default function Admin() {
     setTimeout(() => setSavedNote(n => n === reportId ? null : n), 2000)
   }
 
+  function handleReportDeleted(reportId) {
+    setReports(prev => {
+      const next = prev.filter(r => r.id !== reportId)
+      const s = {}
+      STATUS_FLOW.concat(['respins']).forEach(st => {
+        s[st] = next.filter(r => r.status === st).length
+      })
+      s.total = next.length
+      setStats(s)
+      return next
+    })
+  }
+
   const filtered = filter === 'all' ? reports : reports.filter(r => r.status === filter)
 
   if (loading) {
@@ -145,6 +158,7 @@ export default function Admin() {
                 justSavedNote={savedNote === report.id}
                 onNoteChange={(id, text) => setNoteInputs(prev => ({ ...prev, [id]: text }))}
                 onSaveNote={saveNote}
+                onDeleted={handleReportDeleted}
               />
             ))
           )}

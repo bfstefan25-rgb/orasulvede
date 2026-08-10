@@ -34,6 +34,7 @@ function formatDateTime(date) {
 export default function ReportAdminCard({
   report, isLast, isUpdating, onUpdateStatus,
   noteDraft, isSavingNote, justSavedNote, onNoteChange, onSaveNote,
+  onDeleted,
 }) {
   const sc = STATUS_COLORS[report.status] || STATUS_COLORS.raportat
   const currentIdx = STATUS_FLOW.indexOf(report.status)
@@ -53,6 +54,10 @@ export default function ReportAdminCard({
   const [historyLoading, setHistoryLoading] = useState(false)
   const [history, setHistory] = useState(null)
   const [historyError, setHistoryError] = useState(null)
+
+  const [deleteConfirm, setDeleteConfirm] = useState(false)
+  const [deleting, setDeleting] = useState(false)
+  const [deleteError, setDeleteError] = useState(null)
 
   async function saveCategory() {
     setSavingCategory(true)
@@ -74,6 +79,20 @@ export default function ReportAdminCard({
       setSavedRouting(true)
       setTimeout(() => setSavedRouting(false), 2000)
     }
+  }
+
+  async function handleDelete() {
+    if (!deleteConfirm) { setDeleteConfirm(true); return }
+    setDeleting(true)
+    setDeleteError(null)
+    const { error } = await supabase.rpc('admin_delete_report', { p_report_id: report.id })
+    if (error) {
+      setDeleteError(error.message)
+      setDeleting(false)
+      setDeleteConfirm(false)
+      return
+    }
+    onDeleted(report.id)
   }
 
   async function toggleHistory() {
@@ -168,7 +187,23 @@ export default function ReportAdminCard({
         >
           {historyOpen ? '▲' : '▼'} Istoric status
         </button>
+        <button
+          onClick={handleDelete}
+          onBlur={() => setDeleteConfirm(false)}
+          disabled={deleting}
+          className={`rounded-xl px-3 py-2 text-xs font-bold transition-colors ml-auto ${
+            deleteConfirm
+              ? 'bg-red-600 text-white hover:bg-red-700'
+              : 'bg-white text-red-600 border border-red-200 hover:bg-red-50'
+          } disabled:opacity-50`}
+        >
+          {deleting ? 'Se șterge...' : deleteConfirm ? 'Confirmă ștergerea' : '🗑️ Șterge'}
+        </button>
       </div>
+
+      {deleteError && (
+        <p className="text-xs text-red-600 mb-3">Eroare la ștergere: {deleteError}</p>
+      )}
 
       {historyOpen && (
         <div className="mb-4 bg-gray-50 border border-gray-200 rounded-xl p-3 text-xs">

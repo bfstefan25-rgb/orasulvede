@@ -20,6 +20,7 @@ const Login = lazy(() => import('./pages/Login'))
 const Register = lazy(() => import('./pages/Register'))
 const Admin = lazy(() => import('./pages/Admin'))
 const Dashboard = lazy(() => import('./pages/Dashboard'))
+const DashboardDemo = lazy(() => import('./pages/DashboardDemo'))
 const Legal = lazy(() => import('./pages/Legal'))
 const ResetPassword = lazy(() => import('./pages/ResetPassword'))
 
@@ -41,6 +42,7 @@ function App() {
               <Route path="/profil" element={<><Navbar /><ProtectedRoute><Profile /></ProtectedRoute></>} />
               <Route path="/admin" element={<Admin />} />
               <Route path="/dashboard" element={<><Navbar /><InstitutionRoute><ErrorBoundary><Dashboard /></ErrorBoundary></InstitutionRoute></>} />
+              <Route path="/dashboard-demo" element={<><Navbar /><ErrorBoundary><DashboardDemo /></ErrorBoundary></>} />
               <Route path="/legal/:page" element={<Legal />} />
               <Route path="/reset-password" element={<ResetPassword />} />
             </Routes>
